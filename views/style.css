@@ -1,0 +1,18 @@
+label {
+    display: inline-block;
+    width: 150px;
+}
+
+label.error {
+    display: inline-block;
+    color:red;
+    width: 200px;
+}
+
+form .error {
+color: #ff0000;
+}
+
+input {
+    width: 200px;
+}
