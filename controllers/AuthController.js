@@ -228,7 +228,7 @@ exports.verify = async (req, res) => {
                         message:err.message
                     });
                 } else {
-                    return res.status(200).jsonjson({
+                    return res.status(200).json({
                         success: true, 
                         message:"Tài khoản đã được xác minh. Xin vui lòng đăng nhập."
                     });
