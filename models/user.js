@@ -16,13 +16,6 @@ const UserSchema = new mongoose.Schema({
         lowercase: true
     },
 
-    username: {
-        type: String,
-        unique: true,
-        trim: true,
-        required: 'Your username is required',
-    },
-
     password: {
         type: String,
         required: 'Your password is required',
@@ -31,38 +24,17 @@ const UserSchema = new mongoose.Schema({
 
     providerToken: {
         type: String,
+        required: false,
         trim: true,
     },
 
     providerID: {
         type: String,
+        required: false,
         trim: true,
     },
 
     loginprovider: {
-        type: String,
-        trim: true,
-    },
-
-    phone: {
-        type: String,
-        required: false,
-        trim: true,
-    },
-
-    sex: {
-        type: String,
-        required: false,
-        trim: true,
-    },
-    
-    dob: {
-        type: String,
-        required: false,
-        trim: true,
-    },
-
-    address: {
         type: String,
         required: false,
         trim: true,
@@ -74,7 +46,18 @@ const UserSchema = new mongoose.Schema({
         trim: true,
     },
 
+    userRole: {
+        type: String,
+        enum: ['Admin' , 'User'],
+        default: 'User'
+    },
+
     isVerified: {
+        type: Boolean,
+        default: false
+    },
+
+    isBlocked: {
         type: Boolean,
         default: false
     },
