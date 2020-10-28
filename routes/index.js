@@ -36,17 +36,17 @@ module.exports = app => {
     app.get('/auth/facebook/callback',
     passport.authenticate('facebook', {
         session: false
-        }), (req, res) => {
-                if (req.user._id) {
-                    res.json({
-                        success: true,
-                        _id: req.user._id
+            }), (req, res) => {
+                    if (req.user._id) {
+                        res.json({
+                            success: true,
+                            _id: req.user._id
+                        })
+                    } else {
+                        res.json({
+                            success: false
                     })
-                } else {
-                    res.json({
-                        success: false
-                })
+                }
             }
-        }
     );
 };

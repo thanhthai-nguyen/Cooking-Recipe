@@ -30,7 +30,7 @@ connection.once('open', () => {
       const match = ["image/png", "image/jpeg"];
 
       if (match.indexOf(file.mimetype) === -1) {
-        const filename = `user-${Date.now()}-${file.originalname}`;
+        const filename = `cooking_recipe-${Date.now()}-${file.originalname}`;
         return filename;
       }
 

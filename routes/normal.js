@@ -3,6 +3,8 @@ const {check} = require('express-validator');
 const Auth = require('../controllers/AuthController');
 const validate = require('../middlewares/validate');
 const Password = require('../controllers/PasswordController');
+const uploadImage = require('../helpers/uploadImage');
+
 
 const router = express.Router();
 
@@ -45,5 +47,25 @@ router.post('/reset/:token', [
 
 // Đăng xuất
 router.delete('/logout', Auth.logout);
+
+//UPDATE
+router.post('/uploadImage', uploadImage.uploadFile, (req, res) => {
+    if (req.file.filename) {
+        res.json({
+            success: true,
+            message: 'Image has been uploaded.',
+            Image: req.file.filename
+        })
+    } else {
+        res.json({
+            success: false,
+            message: 'Upload failed.',
+        })
+    }
+});
+
+//DISPLAY IMAGE
+router.get('/image/:filename', uploadImage.displayImage);
+
 
 module.exports = router;

@@ -212,10 +212,7 @@ exports.verify = async (req, res) => {
             }
 
             if (user.isVerified) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Người dùng này đã được xác minh.' 
-                });
+                res.render('verify');
             }
 
             // Verify and save the user
@@ -228,10 +225,7 @@ exports.verify = async (req, res) => {
                         message:err.message
                     });
                 } else {
-                    return res.status(200).json({
-                        success: true, 
-                        message:"Tài khoản đã được xác minh. Xin vui lòng đăng nhập."
-                    });
+                    res.render('verify');
                 }
 
             });
