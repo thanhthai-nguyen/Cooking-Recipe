@@ -16,7 +16,8 @@ exports.register = async (req, res) => {
 
         // Make sure this account doesn't already exist
         const user = await User.findOne({ 
-            email 
+            email,
+            isDeleted: false
         });
 
         if (user) {
@@ -51,7 +52,8 @@ exports.login = async  (req, res) => {
         const { email, password } = req.body;
 
         const user = await User.findOne({ 
-            email 
+            email,
+            isDeleted: false 
         });
 
         if (!user) {
@@ -114,7 +116,10 @@ exports.refreshToken = async  (req, res) => {
     try {
         const { email } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ 
+            email,
+            isDeleted: false
+        });
         
         const refreshToken = req.body.token;
 
@@ -203,7 +208,10 @@ exports.verify = async (req, res) => {
         }
 
         // If we found a token, find a matching user
-        User.findOne({ _id: token.userId }, (err, user) => {
+        User.findOne({ 
+            _id: token.userId,
+            isDeleted: false
+        }, (err, user) => {
             if (!user) {
                 return res.status(400).json({ 
                     success: false, 
@@ -246,7 +254,10 @@ exports.resendToken = async (req, res) => {
     try {
         const { email } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ 
+            email,
+            isDeleted: false
+        });
 
         if (!user) {
             return res.status(401).json({ 

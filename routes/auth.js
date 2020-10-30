@@ -32,7 +32,7 @@ router.post('/uploadimg', uploadImage.uploadFile, User.uploadimage);
 router.get('/image/:filename', uploadImage.displayImage);
 
 //DELETE
-router.delete('/destroy', User.destroy);
+router.delete('/remove', User.remove);
 
 
 

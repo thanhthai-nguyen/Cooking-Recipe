@@ -8,7 +8,9 @@ const {ObjectId} = require('mongodb');
 // @desc Returns all users
 // @access Public
 exports.index = async function (req, res) {
-    const users = await User.find({});
+    const users = await User.find({
+        isDeleted: false
+    });
     res.status(200).json({users});
 };
 
@@ -21,7 +23,10 @@ exports.store = async (req, res) => {
         const {email} = req.body;
 
         // Make sure this account doesn't already exist
-        const user = await User.findOne({email});
+        const user = await User.findOne({
+            email,
+            isDeleted: false
+        });
 
         if (user) {
             return res.status(401).json({
@@ -86,7 +91,8 @@ exports.show = async function (req, res) {
         return res.status(500).json({
             success: false, 
             message: error.message
-        })       }
+        })       
+    }
 };
 
 // Cập nhật thông tin user
@@ -151,7 +157,7 @@ exports.update = async function (req, res) {
 // @route DELETE api/user/{id}
 // @desc Delete User
 // @access Public
-exports.destroy = async function (req, res) {
+exports.remove = async function (req, res) {
     try {
         const id = req.params.id;
         const userId = req.user._id;

@@ -10,7 +10,10 @@ exports.recover = async (req, res) => {
     try {
         const { email } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ 
+            email,
+            isDeleted: false 
+        });
 
         if (!user) {
             return res.status(401).json({ 
@@ -53,7 +56,8 @@ exports.reset = async (req, res) => {
             resetPasswordToken: token, 
             resetPasswordExpires: {
                 $gt: Date.now()
-            }
+            },
+            isDeleted: false
         });
 
         if (!user) {
@@ -84,7 +88,8 @@ exports.resetPassword = async (req, res) => {
             resetPasswordToken: token, 
             resetPasswordExpires: {
                 $gt: Date.now()
-            }
+            },
+            isDeleted: false
         });
 
         if (!user) {
