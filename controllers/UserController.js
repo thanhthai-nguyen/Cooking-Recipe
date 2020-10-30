@@ -74,7 +74,10 @@ exports.show = async function (req, res) {
         const id = req.params.id;
         const userId = req.user._id;
 
-        const user = await User.findById(userId);
+        const user = await User.find({
+            userId,
+            isDeleted: false
+        });
 
         if (!user) {
             return res.status(401).json({
