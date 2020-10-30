@@ -165,7 +165,7 @@ exports.logout = async  (req, res) => {
             token: req.body.token
         });
 
-        return res.sendStatus(204).json({
+        return res.status(200).json({
             success: false, 
             message: 'Đăng xuất thành công.'
         });
