@@ -4,6 +4,7 @@ const Auth = require('../controllers/AuthController');
 const validate = require('../middlewares/validate');
 const Password = require('../controllers/PasswordController');
 const uploadImage = require('../helpers/uploadImage');
+const Origin = require('../controllers/OriginController');
 
 
 const router = express.Router();
@@ -66,6 +67,14 @@ router.post('/uploadImage', uploadImage.uploadFile, (req, res) => {
 
 //DISPLAY IMAGE
 router.get('/image/:filename', uploadImage.displayImage);
+
+
+// OriginController
+router.post('/origin/createOrigin', Origin.createOrigin);
+router.post('/origin/updateOrigin', Origin.updateOrigin);
+router.get('/origin/getOrigin', Origin.getOrigin);
+router.get('/origin/getAllOrigins', Origin.getAllOrigins);
+router.post('/origin/removeOrigin', Origin.removeOrigin);
 
 
 module.exports = router;

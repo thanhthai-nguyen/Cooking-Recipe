@@ -137,7 +137,7 @@ UserSchema.methods.generateJWT = function() {
     };
 
     return jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: '15m' //expires in 15m
+        expiresIn: '43200m' //expires in 15m
     });
 };
 

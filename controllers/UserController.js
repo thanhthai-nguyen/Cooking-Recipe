@@ -8,10 +8,51 @@ const {ObjectId} = require('mongodb');
 // @desc Returns all users
 // @access Public
 exports.index = async function (req, res) {
-    const users = await User.find({
-        isDeleted: false
-    });
-    res.status(200).json({users});
+    try {
+        const userId = req.user._id;
+
+        const user = await User.findOne({
+            _id: userId,
+            isDeleted: false
+        });
+
+        console.log(user);
+
+        if (user.userRole != 'ADMIN') {
+            return res.status(401).json({
+                success: false, 
+                message: 'Bạn không đủ quyền để thực hiện thao tác này.'
+            });
+        } else {
+            const users = await User.find({
+                isDeleted: false
+            })
+            .sort('userRole DESC');
+            
+            return res.status(200).json({
+                success: true, 
+                Users: users
+            });
+        }  
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            message: error.message
+        })   
+    }
+    
+
+    // if (user.userRole != "ADMIN") {
+    //     return res.status(401).json({
+    //         success: false, 
+    //         message: 'Bạn không đủ quyền để thực hiện thao tác này.'
+    //     });
+    // }
+
+    // const users = await User.find({
+    //     isDeleted: false
+    // });
+    // res.status(200).json({users});
 };
 
 
@@ -174,6 +215,21 @@ exports.remove = async function (req, res) {
                 message: "Sorry, you don't have the permission to delete this data."
             });
         }
+
+        const user = await User.findOne({
+            _id: userId,
+            isDeleted: false
+        });
+
+        console.log(user);
+
+        if (user.userRole != 'ADMIN') {
+            return res.status(401).json({
+                success: false, 
+                message: 'Bạn không đủ quyền để thực hiện thao tác này.'
+            });
+        } 
+
         const removeUser = await User.findByIdAndUpdate(userId, 
             {
                 $set: {
@@ -181,17 +237,17 @@ exports.remove = async function (req, res) {
                 }
             }, {new: true});
 
-            if (!removeUser || removeUser == ''|| removeUser == null) {
-                return res.status(500).json({
-                    success: false, 
-                    message: "Lỗi... Không thể xóa người dùng."
-                })   
-            } else {
-                return res.status(200).json({
-                    success: true, 
-                    message: 'User has been deleted'
-                });
-            }
+        if (!removeUser || removeUser == ''|| removeUser == null) {
+            return res.status(500).json({
+                success: false, 
+                message: "Lỗi... Không thể xóa người dùng."
+            })   
+        } else {
+            return res.status(200).json({
+                success: true, 
+                message: 'User has been deleted'
+            });
+        }
             
     } catch (error) {
         return res.status(500).json({

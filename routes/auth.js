@@ -11,7 +11,7 @@ const router = express.Router();
 
 
 //INDEX
-router.get('/', User.index);
+router.get('/user', User.index);
 
 //STORE
 router.post('/', [
