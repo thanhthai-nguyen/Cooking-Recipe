@@ -134,6 +134,7 @@ UserSchema.methods.generateJWT = function() {
         id: this._id,
         email: this.email,
         username: this.username,
+        userRole: this.userRole
     };
 
     return jwt.sign(payload, process.env.JWT_SECRET, {
@@ -151,6 +152,7 @@ UserSchema.methods.generateJWTrefresh = function() {
         id: this._id,
         email: this.email,
         username: this.username,
+        userRole: this.userRole
     };
 
     return jwt.sign(payload, process.env.JWT_SECRET_REFRESH, {

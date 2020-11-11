@@ -1,22 +1,40 @@
 const mongoose = require('mongoose');
 
-const TagSchema = new mongoose.Schema({
+const PrepTimeSchema = new mongoose.Schema({
     recipeID: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'Recipe'
     },
 
-    originID: {
-        type: mongoose.Schema.Types.ObjectId,
+    prep: {
+        type: String,
         // required: true,
-        ref: 'Origin'
     },
 
-    main_ingredientID: {
-        type: mongoose.Schema.Types.ObjectId,
+    cook: {
+        type: String,
         // required: true,
-        ref: 'MainIngredient'
+    },
+
+    total: {
+        type: String,
+        // required: true,
+    },
+
+    servings: {
+        type: String,
+        // required: true,
+    },
+
+    yield: {
+        type: String,
+        // required: true,
+    },
+
+    nutrition_facts: {
+        type: String,
+        // required: true,
     },
 
     createdAt: {
@@ -42,4 +60,4 @@ const TagSchema = new mongoose.Schema({
 
 
 mongoose.set("useFindAndModify", false);
-module.exports = mongoose.model('Tag', TagSchema);
+module.exports = mongoose.model('PrepTime', PrepTimeSchema);

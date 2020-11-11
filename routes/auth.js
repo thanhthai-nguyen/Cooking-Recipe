@@ -9,9 +9,11 @@ const validate = require('../middlewares/validate');
 
 const router = express.Router();
 
+const Recipe = require('../controllers/RecipeController');
+
 
 //INDEX
-router.get('/user', User.index);
+router.get('/user/getAllUsers', User.getAllUsers);
 
 //STORE
 router.post('/', [
@@ -20,19 +22,23 @@ router.post('/', [
 ], validate, User.store);
 
 //SHOW
-router.get('/show', User.show);
+router.get('/user/show', User.show);
 
 //UPDATE USER 
-router.put('/update', uploadImage.uploadFile ,User.update);
+router.put('/user/update', uploadImage.uploadFile ,User.update);
 
 //UPLOAD IMAGE
-router.post('/uploadimg', uploadImage.uploadFile, User.uploadimage);
+router.post('/user/uploadimg', uploadImage.uploadFile, User.uploadimage);
 
 //DISPLAY IMAGE
-router.get('/image/:filename', uploadImage.displayImage);
+router.get('/user/image/:filename', uploadImage.displayImage);
 
 //DELETE
-router.post('/remove', User.remove);
+router.post('/user/remove', User.remove);
+
+// RecipeController
+router.post('/recipe/createRecipe', Recipe.createRecipe);
+router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
 
 
 

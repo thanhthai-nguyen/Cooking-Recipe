@@ -5,6 +5,7 @@ const validate = require('../middlewares/validate');
 const Password = require('../controllers/PasswordController');
 const uploadImage = require('../helpers/uploadImage');
 const Origin = require('../controllers/OriginController');
+const MainIngredient = require('../controllers/MainIngredientController');
 
 
 const router = express.Router();
@@ -75,6 +76,13 @@ router.post('/origin/updateOrigin', Origin.updateOrigin);
 router.get('/origin/getOrigin', Origin.getOrigin);
 router.get('/origin/getAllOrigins', Origin.getAllOrigins);
 router.post('/origin/removeOrigin', Origin.removeOrigin);
+
+// MainIngredient
+router.post('/ingredient/createMainIngredient', MainIngredient.createMainIngredient);
+router.post('/ingredient/updateMainIngredient', MainIngredient.updateMainIngredient);
+router.get('/ingredient/getMainIngredient', MainIngredient.getMainIngredient);
+router.get('/ingredient/getAllMainIngredient', MainIngredient.getAllMainIngredient);
+router.post('/ingredient/removeMainIngredient', MainIngredient.removeMainIngredient);
 
 
 module.exports = router;

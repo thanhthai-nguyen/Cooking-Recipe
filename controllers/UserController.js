@@ -7,18 +7,9 @@ const {ObjectId} = require('mongodb');
 // @route GET admin/user
 // @desc Returns all users
 // @access Public
-exports.index = async function (req, res) {
+exports.getAllUsers = async function (req, res) {
     try {
-        const userId = req.user._id;
-
-        const user = await User.findOne({
-            _id: userId,
-            isDeleted: false
-        });
-
-        console.log(user);
-
-        if (user.userRole != 'ADMIN') {
+        if (req.user.userRole != 'ADMIN') {
             return res.status(401).json({
                 success: false, 
                 message: 'Bạn không đủ quyền để thực hiện thao tác này.'
