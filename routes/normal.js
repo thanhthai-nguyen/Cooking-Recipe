@@ -6,6 +6,7 @@ const Password = require('../controllers/PasswordController');
 const uploadImage = require('../helpers/uploadImage');
 const Origin = require('../controllers/OriginController');
 const MainIngredient = require('../controllers/MainIngredientController');
+const Recipe = require('../controllers/RecipeController');
 
 
 const router = express.Router();
@@ -84,5 +85,9 @@ router.get('/ingredient/getMainIngredient', MainIngredient.getMainIngredient);
 router.get('/ingredient/getAllMainIngredient', MainIngredient.getAllMainIngredient);
 router.post('/ingredient/removeMainIngredient', MainIngredient.removeMainIngredient);
 
+
+// RecipeController
+router.post('/recipe/createRecipe', Recipe.createRecipeNoToken);
+router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
 
 module.exports = router;

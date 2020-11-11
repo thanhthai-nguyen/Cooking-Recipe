@@ -250,6 +250,241 @@ exports.createRecipe = async function (req, res) {
     }
 };
 
+// Không cần token
+exports.createRecipeNoToken = async function (req, res) {
+    if (!req.body) {
+        return res.status(500).json({
+            success: false, 
+            message: 'Empty body'
+        });
+    }
+
+    try {
+        const recipe = {
+            userID: req.body.recipe._id,
+            name: req.body.recipe.name,
+            des: req.body.recipe.des,
+            category: req.body.recipe.category,
+            img_url: req.body.recipe.img_url,
+            level: req.body.recipe.level,
+            rate: req.body.recipe.rate,
+            num_of_reviews: req.body.recipe.num_of_reviews
+        }
+
+        const checkUser = await User.findOne({
+            isDeleted: false
+        })
+
+        if (checkUser.userRole === 'ADMIN') {
+            recipe.isConfirmed = true
+        }
+
+        if (!recipe.userID || !recipe.name || !recipe.des || !recipe.category || !recipe.img_url || !recipe.level || !recipe.rate || !recipe.num_of_reviews) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-025",
+                message: 'Dữ liệu truyền lên bị thiếu.'
+            });
+        }
+
+        const _ingredients = req.body.ingredients;
+        const _steps = req.body.steps;
+        const _pictures = req.body.pictures;
+        const _tags = req.body.tags;
+
+        let i = 0;
+        await Promise.all(_ingredients.map(async ingredient => {
+            i++;
+            if (!ingredient.content) {
+                return res.json({
+                    success: false,
+                    code: "ERROR-026",
+                    message: `ingredients: content thứ ${i+1} không xác định`
+                });
+            } 
+            // return {
+            //     content: ingredient.content,
+            // }
+        }));
+
+        let j = 0;
+        await Promise.all(_steps.map(async step => {
+            j++;
+            if (!step.content) {
+                return res.json({
+                    success: false,
+                    code: "ERROR-027",
+                    message: `steps: content thứ ${j+1} không xác định`
+                });
+            } 
+            // return {
+            //     content: step.content,
+            // }
+        }));
+
+        let k = 0;
+        await Promise.all(_pictures.map(async picture => {
+            k++;
+            if (!picture.img_url) {
+                return res.json({
+                    success: false,
+                    code: "ERROR-028",
+                    message: `pictures: img_url thứ ${k+1} không xác định`
+                });
+            } 
+            // return {
+            //     img_url: picture.img_url,
+            // }
+        }));
+
+        let l = 0;
+        await Promise.all(_tags.map(async tag => {
+            l++;
+            if (!tag.originID && !tag.main_ingredientID) {
+                return res.json({
+                    success: false,
+                    code: "ERROR-029",
+                    message: `tags: originID hoặc main_ingredientID thứ ${l+1} không xác định`
+                });
+            } 
+
+            if (tag.originID) {
+                const checkOrigin = await Origin.findOne({
+                    _id: tag.originID,
+                    isDeleted: false
+                });
+        
+                if (!checkOrigin) {
+                    return res.json({
+                        success: false,
+                        code: "ERROR-030",
+                        message: `tags: Origin thứ ${l+1} không tồn tại.`
+                    });
+                }
+            }
+
+            if (tag.main_ingredientID) {
+                const checkMainIngredient = await MainIngredient.findOne({
+                    _id: tag.main_ingredientID,
+                    isDeleted: false
+                });
+        
+                if (!checkMainIngredient) {
+                    return res.json({
+                        success: false,
+                        code: "ERROR-031",
+                        message: `tags: MainIngredient thứ ${l+1} không tồn tại.`
+                    });
+                }
+            }
+            // return {
+            //     originID: tag.originID ? tag.originID: null,
+            //     main_ingredientID: tag.main_ingredientID ? tag.main_ingredientID: null,
+            // }
+        }));
+
+        const newRecipe = await Recipe.create(recipe);
+
+        if (!newRecipe || newRecipe == '' || newRecipe == null) {
+            return res.json({
+                success: false, 
+                code: "ERROR-032",
+                message: 'Tạo Recipe không thành công.'
+            });
+        } else {
+            const prep_time = {
+                recipeID: newRecipe.id,
+                prep: req.body.prep_time.prep,
+                cook: req.body.prep_time.cook,
+                total: req.body.prep_time.total,
+                servings: req.body.prep_time.servings,
+                yield: req.body.prep_time.yield,
+                nutrition_facts: req.body.prep_time.nutrition_facts,
+            }
+
+            const newPrepTime = await PrepTime.create(prep_time);
+
+            await Promise.all(_ingredients.map(async ingredient => {
+                await Ingredient.create({
+                    recipeID: newRecipe.id,
+                    content: ingredient.content,
+                });
+            }))
+
+            await Promise.all(_steps.map(async step => {
+                await Step.create({
+                    recipeID: newRecipe.id,
+                    content: step.content,
+                });
+            }))
+
+            await Promise.all(_pictures.map(async picture => {
+                await Picture.create({
+                    recipeID: newRecipe.id,
+                    img_url: picture.img_url,
+                });
+            }))
+
+            await Promise.all(_tags.map(async tag => {
+                await Tag.create({
+                    recipeID: newRecipe.id,
+                    originID: tag.originID,
+                    main_ingredientID: tag.main_ingredientID
+                })
+            }))
+
+            const listIngredients = await Ingredient.find({
+                recipeID: newRecipe.id,
+                isDeleted: false
+            }, 'content')
+
+            const listSteps = await Step.find({
+                recipeID: newRecipe.id,
+                isDeleted: false
+            }, 'content')
+
+            const listPictures = await Picture.find({
+                recipeID: newRecipe.id,
+                isDeleted: false
+            }, 'img_url')
+
+            const listTags = await Tag.find({
+                recipeID: newRecipe.id,
+                isDeleted: false
+            }, 'originID main_ingredientID')
+            .populate({
+                path: 'originID',
+                select: 'name img_url des',
+                model: Origin
+                })
+            .populate({
+                path: 'main_ingredientID',
+                select: 'category name img_url des',
+                model: MainIngredient
+            });
+            
+            return res.json({
+                success: true,
+                code: "SUCCESS-010",
+                message: "Tạo Recipe thành công",
+                Recipe: newRecipe,
+                Ingredients: listIngredients,
+                Steps: listSteps,
+                Pictures: listPictures,
+                Tags: listTags,
+                PrepTime: newPrepTime
+            })
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-010",
+            message: error.message
+        })   
+    }
+};
+
 exports.updateMainIngredient = async function (req, res) {
     if (!req.body) {
         return res.status(500).json({
