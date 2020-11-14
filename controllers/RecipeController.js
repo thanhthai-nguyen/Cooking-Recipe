@@ -57,14 +57,14 @@ exports.createRecipe = async function (req, res) {
         const _pictures = req.body.pictures;
         const _tags = req.body.tags;
 
-        let i = 0;
+        let flag = 0;
         await Promise.all(_ingredients.map(async ingredient => {
-            i++;
             if (!ingredient.content) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-026",
-                    message: `ingredients: content thứ ${i+1} không xác định`
+                    message: `ingredients: content ${ingredient.content} không xác định`
                 });
             } 
             // return {
@@ -72,14 +72,13 @@ exports.createRecipe = async function (req, res) {
             // }
         }));
 
-        let j = 0;
         await Promise.all(_steps.map(async step => {
-            j++;
             if (!step.content) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-027",
-                    message: `steps: content thứ ${j+1} không xác định`
+                    message: `steps: content ${step.content} không xác định`
                 });
             } 
             // return {
@@ -87,14 +86,13 @@ exports.createRecipe = async function (req, res) {
             // }
         }));
 
-        let k = 0;
         await Promise.all(_pictures.map(async picture => {
-            k++;
             if (!picture.img_url) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-028",
-                    message: `pictures: img_url thứ ${k+1} không xác định`
+                    message: `pictures: img_url ${picture.img_url} không xác định`
                 });
             } 
             // return {
@@ -106,10 +104,11 @@ exports.createRecipe = async function (req, res) {
         await Promise.all(_tags.map(async tag => {
             l++;
             if (!tag.originID && !tag.main_ingredientID) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-029",
-                    message: `tags: originID hoặc main_ingredientID thứ ${l+1} không xác định`
+                    message: `tags: originID hoặc main_ingredientID thứ ${l} không xác định`
                 });
             } 
 
@@ -120,10 +119,11 @@ exports.createRecipe = async function (req, res) {
                 });
         
                 if (!checkOrigin) {
+                    flag = 1;
                     return res.json({
                         success: false,
                         code: "ERROR-030",
-                        message: `tags: Origin thứ ${l+1} không tồn tại.`
+                        message: `tags: Origin ${tag.originID} không tồn tại.`
                     });
                 }
             }
@@ -135,10 +135,11 @@ exports.createRecipe = async function (req, res) {
                 });
         
                 if (!checkMainIngredient) {
+                    flag = 1;
                     return res.json({
                         success: false,
                         code: "ERROR-031",
-                        message: `tags: MainIngredient thứ ${l+1} không tồn tại.`
+                        message: `tags: MainIngredient ${tag.main_ingredientID} không tồn tại.`
                     });
                 }
             }
@@ -148,98 +149,102 @@ exports.createRecipe = async function (req, res) {
             // }
         }));
 
-        const newRecipe = await Recipe.create(recipe);
+        if (flag !== 1) {
+            const newRecipe = await Recipe.create(recipe);
 
-        if (!newRecipe || newRecipe == '' || newRecipe == null) {
-            return res.json({
-                success: false, 
-                code: "ERROR-032",
-                message: 'Tạo Recipe không thành công.'
-            });
-        } else {
-            const prep_time = {
-                recipeID: newRecipe.id,
-                prep: req.body.prep_time.prep,
-                cook: req.body.prep_time.cook,
-                total: req.body.prep_time.total,
-                servings: req.body.prep_time.servings,
-                yield: req.body.prep_time.yield,
-                nutrition_facts: req.body.prep_time.nutrition_facts,
+            if (!newRecipe || newRecipe == '' || newRecipe == null) {
+                return res.json({
+                    success: false, 
+                    code: "ERROR-032",
+                    message: 'Tạo Recipe không thành công.'
+                });
+            } else {
+                const prep_time = {
+                    recipeID: newRecipe.id,
+                    prep: req.body.prep_time.prep,
+                    cook: req.body.prep_time.cook,
+                    total: req.body.prep_time.total,
+                    servings: req.body.prep_time.servings,
+                    yield: req.body.prep_time.yield,
+                    nutrition_facts: req.body.prep_time.nutrition_facts,
+                }
+    
+                const newPrepTime = await PrepTime.create(prep_time);
+    
+                await Promise.all(_ingredients.map(async ingredient => {
+                    await Ingredient.create({
+                        recipeID: newRecipe.id,
+                        content: ingredient.content,
+                    });
+                }))
+    
+                await Promise.all(_steps.map(async step => {
+                    await Step.create({
+                        recipeID: newRecipe.id,
+                        content: step.content,
+                    });
+                }))
+    
+                await Promise.all(_pictures.map(async picture => {
+                    await Picture.create({
+                        recipeID: newRecipe.id,
+                        img_url: picture.img_url,
+                    });
+                }))
+    
+                await Promise.all(_tags.map(async tag => {
+                    await Tag.create({
+                        recipeID: newRecipe.id,
+                        originID: tag.originID,
+                        main_ingredientID: tag.main_ingredientID
+                    })
+                }))
+    
+                const listIngredients = await Ingredient.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'content')
+    
+                const listSteps = await Step.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'content')
+    
+                const listPictures = await Picture.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'img_url')
+    
+                const listTags = await Tag.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'originID main_ingredientID')
+                .populate({
+                    path: 'originID',
+                    select: 'name img_url des',
+                    model: Origin
+                    })
+                .populate({
+                    path: 'main_ingredientID',
+                    select: 'category name img_url des',
+                    model: MainIngredient
+                });
+                
+                return res.json({
+                    success: true,
+                    code: "SUCCESS-010",
+                    message: "Tạo Recipe thành công",
+                    Recipe: newRecipe,
+                    Ingredients: listIngredients,
+                    Steps: listSteps,
+                    Pictures: listPictures,
+                    Tags: listTags,
+                    PrepTime: newPrepTime
+                })
             }
-
-            const newPrepTime = await PrepTime.create(prep_time);
-
-            await Promise.all(_ingredients.map(async ingredient => {
-                await Ingredient.create({
-                    recipeID: newRecipe.id,
-                    content: ingredient.content,
-                });
-            }))
-
-            await Promise.all(_steps.map(async step => {
-                await Step.create({
-                    recipeID: newRecipe.id,
-                    content: step.content,
-                });
-            }))
-
-            await Promise.all(_pictures.map(async picture => {
-                await Picture.create({
-                    recipeID: newRecipe.id,
-                    img_url: picture.img_url,
-                });
-            }))
-
-            await Promise.all(_tags.map(async tag => {
-                await Tag.create({
-                    recipeID: newRecipe.id,
-                    originID: tag.originID,
-                    main_ingredientID: tag.main_ingredientID
-                })
-            }))
-
-            const listIngredients = await Ingredient.find({
-                recipeID: newRecipe.id,
-                isDeleted: false
-            }, 'content')
-
-            const listSteps = await Step.find({
-                recipeID: newRecipe.id,
-                isDeleted: false
-            }, 'content')
-
-            const listPictures = await Picture.find({
-                recipeID: newRecipe.id,
-                isDeleted: false
-            }, 'img_url')
-
-            const listTags = await Tag.find({
-                recipeID: newRecipe.id,
-                isDeleted: false
-            }, 'originID main_ingredientID')
-            .populate({
-                path: 'originID',
-                select: 'name img_url des',
-                model: Origin
-                })
-            .populate({
-                path: 'main_ingredientID',
-                select: 'category name img_url des',
-                model: MainIngredient
-            });
-            
-            return res.json({
-                success: true,
-                code: "SUCCESS-010",
-                message: "Tạo Recipe thành công",
-                Recipe: newRecipe,
-                Ingredients: listIngredients,
-                Steps: listSteps,
-                Pictures: listPictures,
-                Tags: listTags,
-                PrepTime: newPrepTime
-            })
         }
+
+       
 
     } catch (error) {
         return res.status(500).json({
@@ -292,14 +297,14 @@ exports.createRecipeNoToken = async function (req, res) {
         const _pictures = req.body.pictures;
         const _tags = req.body.tags;
 
-        let i = 0;
+        let flag = 0;
         await Promise.all(_ingredients.map(async ingredient => {
-            i++;
             if (!ingredient.content) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-026",
-                    message: `ingredients: content thứ ${i+1} không xác định`
+                    message: `ingredients: content ${ingredient.content} không xác định`
                 });
             } 
             // return {
@@ -307,14 +312,13 @@ exports.createRecipeNoToken = async function (req, res) {
             // }
         }));
 
-        let j = 0;
         await Promise.all(_steps.map(async step => {
-            j++;
             if (!step.content) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-027",
-                    message: `steps: content thứ ${j+1} không xác định`
+                    message: `steps: content ${step.content} không xác định`
                 });
             } 
             // return {
@@ -322,14 +326,13 @@ exports.createRecipeNoToken = async function (req, res) {
             // }
         }));
 
-        let k = 0;
         await Promise.all(_pictures.map(async picture => {
-            k++;
             if (!picture.img_url) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-028",
-                    message: `pictures: img_url thứ ${k+1} không xác định`
+                    message: `pictures: img_url ${picture.img_url} không xác định`
                 });
             } 
             // return {
@@ -341,10 +344,11 @@ exports.createRecipeNoToken = async function (req, res) {
         await Promise.all(_tags.map(async tag => {
             l++;
             if (!tag.originID && !tag.main_ingredientID) {
+                flag = 1;
                 return res.json({
                     success: false,
                     code: "ERROR-029",
-                    message: `tags: originID hoặc main_ingredientID thứ ${l+1} không xác định`
+                    message: `tags: originID hoặc main_ingredientID thứ ${l} không xác định`
                 });
             } 
 
@@ -355,10 +359,11 @@ exports.createRecipeNoToken = async function (req, res) {
                 });
         
                 if (!checkOrigin) {
+                    flag = 1;
                     return res.json({
                         success: false,
                         code: "ERROR-030",
-                        message: `tags: Origin thứ ${l+1} không tồn tại.`
+                        message: `tags: Origin ${tag.originID} không tồn tại.`
                     });
                 }
             }
@@ -370,10 +375,11 @@ exports.createRecipeNoToken = async function (req, res) {
                 });
         
                 if (!checkMainIngredient) {
+                    flag = 1;
                     return res.json({
                         success: false,
                         code: "ERROR-031",
-                        message: `tags: MainIngredient thứ ${l+1} không tồn tại.`
+                        message: `tags: MainIngredient ${tag.main_ingredientID} không tồn tại.`
                     });
                 }
             }
@@ -383,73 +389,203 @@ exports.createRecipeNoToken = async function (req, res) {
             // }
         }));
 
-        const newRecipe = await Recipe.create(recipe);
+        if (flag !== 1) {
+            const newRecipe = await Recipe.create(recipe);
 
-        if (!newRecipe || newRecipe == '' || newRecipe == null) {
-            return res.json({
-                success: false, 
-                code: "ERROR-032",
-                message: 'Tạo Recipe không thành công.'
+            if (!newRecipe || newRecipe == '' || newRecipe == null) {
+                return res.json({
+                    success: false, 
+                    code: "ERROR-032",
+                    message: 'Tạo Recipe không thành công.'
+                });
+            } else {
+                const prep_time = {
+                    recipeID: newRecipe.id,
+                    prep: req.body.prep_time.prep,
+                    cook: req.body.prep_time.cook,
+                    total: req.body.prep_time.total,
+                    servings: req.body.prep_time.servings,
+                    yield: req.body.prep_time.yield,
+                    nutrition_facts: req.body.prep_time.nutrition_facts,
+                }
+    
+                const newPrepTime = await PrepTime.create(prep_time);
+    
+                await Promise.all(_ingredients.map(async ingredient => {
+                    await Ingredient.create({
+                        recipeID: newRecipe.id,
+                        content: ingredient.content,
+                    });
+                }))
+    
+                await Promise.all(_steps.map(async step => {
+                    await Step.create({
+                        recipeID: newRecipe.id,
+                        content: step.content,
+                    });
+                }))
+    
+                await Promise.all(_pictures.map(async picture => {
+                    await Picture.create({
+                        recipeID: newRecipe.id,
+                        img_url: picture.img_url,
+                    });
+                }))
+    
+                await Promise.all(_tags.map(async tag => {
+                    await Tag.create({
+                        recipeID: newRecipe.id,
+                        originID: tag.originID,
+                        main_ingredientID: tag.main_ingredientID
+                    })
+                }))
+    
+                const listIngredients = await Ingredient.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'content')
+    
+                const listSteps = await Step.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'content')
+    
+                const listPictures = await Picture.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'img_url')
+    
+                const listTags = await Tag.find({
+                    recipeID: newRecipe.id,
+                    isDeleted: false
+                }, 'originID main_ingredientID')
+                .populate({
+                    path: 'originID',
+                    select: 'name img_url des',
+                    model: Origin
+                    })
+                .populate({
+                    path: 'main_ingredientID',
+                    select: 'category name img_url des',
+                    model: MainIngredient
+                });
+                
+                return res.json({
+                    success: true,
+                    code: "SUCCESS-010",
+                    message: "Tạo Recipe thành công",
+                    Recipe: newRecipe,
+                    Ingredients: listIngredients,
+                    Steps: listSteps,
+                    Pictures: listPictures,
+                    Tags: listTags,
+                    PrepTime: newPrepTime
+                })
+            }
+        }
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-010",
+            message: error.message
+        })   
+    }
+};
+
+exports.updateRecipe = async function (req, res) {
+    if (!req.body) {
+        return res.status(500).json({
+            success: false, 
+            message: 'Empty body'
+        });
+    }
+    try {
+        const recipeID = req.body.recipeID;
+
+        const update = req.body;
+
+
+        if (!recipeID) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-018",
+                message: 'recipeID không xác định.'
+            });
+        } 
+
+        const _recipe = await Recipe.findOneAndUpdate({
+            _id: recipeID,
+            isDeleted: false 
+        }, update, {new: true});
+        
+
+        if (!_recipe || _recipe == null || _recipe == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-019",
+                message: 'Cập nhật bản ghi không thành công! Kiểm tra lại recipeID.'
+            });
+        } 
+
+        return res.status(200).json({
+            success: true,
+            code: "SUCCESS-006",
+            message: 'Cập nhật thành công.',
+            Recipe: _recipe
+        }); 
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-006",
+            message: error.message
+        })   
+    }
+};
+
+exports.getRecipe = async function (req, res) {
+    try {
+        const recipeID = req.query.recipeID;
+
+        if (!recipeID) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-020",
+                message: 'recipeID không xác định.'
+            });
+        } 
+
+        const _recipe = await Recipe.findOne({
+            _id: recipeID,
+            isDeleted: false 
+        });
+        
+        if (!_recipe || _recipe == null || _recipe == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-021",
+                message: 'Không tìm thấy bản ghi.'
             });
         } else {
-            const prep_time = {
-                recipeID: newRecipe.id,
-                prep: req.body.prep_time.prep,
-                cook: req.body.prep_time.cook,
-                total: req.body.prep_time.total,
-                servings: req.body.prep_time.servings,
-                yield: req.body.prep_time.yield,
-                nutrition_facts: req.body.prep_time.nutrition_facts,
-            }
-
-            const newPrepTime = await PrepTime.create(prep_time);
-
-            await Promise.all(_ingredients.map(async ingredient => {
-                await Ingredient.create({
-                    recipeID: newRecipe.id,
-                    content: ingredient.content,
-                });
-            }))
-
-            await Promise.all(_steps.map(async step => {
-                await Step.create({
-                    recipeID: newRecipe.id,
-                    content: step.content,
-                });
-            }))
-
-            await Promise.all(_pictures.map(async picture => {
-                await Picture.create({
-                    recipeID: newRecipe.id,
-                    img_url: picture.img_url,
-                });
-            }))
-
-            await Promise.all(_tags.map(async tag => {
-                await Tag.create({
-                    recipeID: newRecipe.id,
-                    originID: tag.originID,
-                    main_ingredientID: tag.main_ingredientID
-                })
-            }))
-
             const listIngredients = await Ingredient.find({
-                recipeID: newRecipe.id,
+                recipeID: recipeID,
                 isDeleted: false
             }, 'content')
-
+    
             const listSteps = await Step.find({
-                recipeID: newRecipe.id,
+                recipeID: recipeID,
                 isDeleted: false
             }, 'content')
-
+    
             const listPictures = await Picture.find({
-                recipeID: newRecipe.id,
+                recipeID: recipeID,
                 isDeleted: false
             }, 'img_url')
-
+    
             const listTags = await Tag.find({
-                recipeID: newRecipe.id,
+                recipeID: recipeID,
                 isDeleted: false
             }, 'originID main_ingredientID')
             .populate({
@@ -463,110 +599,24 @@ exports.createRecipeNoToken = async function (req, res) {
                 model: MainIngredient
             });
             
+            const prepTime = await PrepTime.find({
+                recipeID: recipeID,
+                isDeleted: false
+            })
+    
             return res.json({
                 success: true,
                 code: "SUCCESS-010",
-                message: "Tạo Recipe thành công",
-                Recipe: newRecipe,
+                message: "Lấy bản ghi thành công",
+                Recipe: _recipe,
                 Ingredients: listIngredients,
                 Steps: listSteps,
                 Pictures: listPictures,
                 Tags: listTags,
-                PrepTime: newPrepTime
+                PrepTime: prepTime
             })
         }
 
-    } catch (error) {
-        return res.status(500).json({
-            success: false, 
-            code: "CATCH-010",
-            message: error.message
-        })   
-    }
-};
-
-exports.updateMainIngredient = async function (req, res) {
-    if (!req.body) {
-        return res.status(500).json({
-            success: false, 
-            message: 'Empty body'
-        });
-    }
-    try {
-        const mainIngredientID = req.body.mainIngredientID;
-
-        const update = req.body;
-
-
-        if (!mainIngredientID) {
-            return res.status(500).json({
-                success: false,
-                code: "ERROR-018",
-                message: 'mainIngredientID không xác định.'
-            });
-        } 
-
-        const _mainIngredient = await MainIngredient.findOneAndUpdate({
-            _id: mainIngredientID,
-            isDeleted: false 
-        }, update, {new: true});
-        
-
-        if (!_mainIngredient || _mainIngredient == null || _mainIngredient == '') {
-            return res.status(500).json({
-                success: false,
-                code: "ERROR-019",
-                message: 'Cập nhật bản ghi không thành công! Kiểm tra lại mainIngredientID.'
-            });
-        } 
-
-        return res.status(200).json({
-            success: true,
-            code: "SUCCESS-006",
-            message: 'Cập nhật thành công.',
-            MainIngredients: _mainIngredient
-        }); 
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false, 
-            code: "CATCH-006",
-            message: error.message
-        })   
-    }
-};
-
-exports.getMainIngredient = async function (req, res) {
-    try {
-        const name = req.query.name;
-
-        if (!name) {
-            return res.status(500).json({
-                success: false,
-                code: "ERROR-020",
-                message: 'name không xác định.'
-            });
-        } 
-
-        const _mainIngredient = await MainIngredient.findOne({
-            name: name,
-            isDeleted: false 
-        });
-        
-        if (!_mainIngredient || _mainIngredient == null || _mainIngredient == '') {
-            return res.status(500).json({
-                success: false,
-                code: "ERROR-021",
-                message: 'Không tìm thấy bản ghi.'
-            });
-        } 
-
-        return res.status(200).json({
-            success: true,
-            code: "SUCCESS-007",
-            message: 'Lấy bản ghi thành công.',
-            MainIngredient: _mainIngredient
-        }); 
 
     } catch (error) {
         return res.status(500).json({
@@ -608,7 +658,7 @@ exports.getAllRecipes = async function (req, res) {
     }
 };
 
-exports.removeMainIngredient = async function (req, res) {
+exports.removeRecipe = async function (req, res) {
     if (!req.body) {
         return res.status(500).json({
             success: false, 
@@ -616,40 +666,63 @@ exports.removeMainIngredient = async function (req, res) {
         });
     }
     try {
-        const mainIngredientID = req.body.mainIngredientID;
+        const recipeID = req.query.recipeID;
 
-        if (!mainIngredientID) {
+        if (!recipeID) {
             return res.status(500).json({
                 success: false,
                 code: "ERROR-023",
-                message: 'mainIngredientID không xác định.'
+                message: 'recipeID không xác định.'
             });
         } 
 
-        const _mainIngredient = await MainIngredient.findOneAndUpdate({
-            _id: mainIngredientID,
-            isDeleted: false 
-        }, 
-        {
-            isDeleted: true
-        }, 
-        {new: true});
-        
-
-        if (!_mainIngredient || _mainIngredient == null || _mainIngredient == '') {
+        await Promise.all([
+            await Recipe.findOneAndUpdate({
+                _id: recipeID,
+                isDeleted: false 
+            }, 
+            {
+                isDeleted: true
+            }, 
+            {new: true}),
+            await Ingredient.updateMany({ 
+                recipeID: recipeID,
+                isDeleted: false 
+            }, 
+            { 
+                isDeleted: true 
+            },
+            {new: true}),
+            await Step.updateMany({
+                recipeID: recipeID,
+                isDeleted: false 
+            }, 
+            {
+                isDeleted: true
+            }, 
+            {new: true}),
+            await Picture.updateMany({
+                recipeID: recipeID,
+                isDeleted: false 
+            }, 
+            {
+                isDeleted: true
+            }, 
+            {new: true}),
+        ])
+        .then(function (data) {
+            return res.status(200).json({
+                success: true,
+                message: 'Recipe đã được hủy thành công.',
+            });
+        })
+        .catch(function (data) {
             return res.status(500).json({
                 success: false,
-                code: "ERROR-024",
-                message: 'Hủy bản ghi không thành công! Kiểm tra lại mainIngredientID.'
+                message: 'Lỗi...Hủy không thành công.'
             });
-        } 
-
-        return res.status(200).json({
-            success: true,
-            code: "SUCCESS-009",
-            message: 'Hủy bản ghi thành công.',
-            // Origin: _origin
-        }); 
+        });
+        
 
     } catch (error) {
         return res.status(500).json({

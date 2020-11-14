@@ -7,6 +7,9 @@ const uploadImage = require('../helpers/uploadImage');
 const Origin = require('../controllers/OriginController');
 const MainIngredient = require('../controllers/MainIngredientController');
 const Recipe = require('../controllers/RecipeController');
+const Tag = require('../controllers/TagController');
+const Step = require('../controllers/StepController');
+const Ingredient  = require('../controllers/IngredientController');
 
 
 const router = express.Router();
@@ -89,5 +92,23 @@ router.post('/ingredient/removeMainIngredient', MainIngredient.removeMainIngredi
 // RecipeController
 router.post('/recipe/createRecipe', Recipe.createRecipeNoToken);
 router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
+router.post('/recipe/updateRecipe', Recipe.updateRecipe);
+router.get('/recipe/getRecipe', Recipe.getRecipe);
+router.get('/recipe/removeRecipe', Recipe.removeRecipe);
+
+// TagController
+router.post('/tag/addTags', Tag.addTags);
+router.post('/tag/removeTag', Tag.removeTag);
+
+// StepController
+router.post('/step/updateStep', Step.updateStep);
+router.post('/step/addSteps', Step.addSteps);
+router.post('/step/removeStep', Step.removeStep);
+
+// IngredientController
+router.post('/ingredient/updateIngredient', Ingredient.updateIngredient);
+router.post('/ingredient/addIngredients', Ingredient.addIngredients);
+router.post('/ingredient/removeIngredient', Ingredient.removeIngredient);
+
 
 module.exports = router;
