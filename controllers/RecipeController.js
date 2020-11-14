@@ -504,7 +504,7 @@ exports.updateRecipe = async function (req, res) {
     try {
         const recipeID = req.body.recipeID;
 
-        const update = req.body;
+        const update = req.body.recipe;
 
 
         if (!recipeID) {

@@ -229,14 +229,8 @@ exports.addSteps = async function (req, res) {
 
 
 exports.removeStep = async function (req, res) {
-    if (!req.body) {
-        return res.status(500).json({
-            success: false, 
-            message: 'Empty body'
-        });
-    }
     try {
-        const stepID = req.body.stepID;
+        const stepID = req.query.stepID;
 
         if (!stepID) {
             return res.status(500).json({

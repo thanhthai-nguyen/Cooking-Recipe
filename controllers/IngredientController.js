@@ -27,7 +27,7 @@ exports.updateIngredient = async function (req, res) {
                 return res.status(500).json({
                     success: false,
                     code: "ERROR-018",
-                    message: `stepID ${ingredient.ingredientID} không xác định.`
+                    message: `ingredientID ${ingredient.ingredientID} không xác định.`
                 });
             } 
         }))
@@ -148,7 +148,7 @@ exports.addIngredients = async function (req, res) {
                 return res.json({
                     success: false,
                     code: "ERROR-027",
-                    message: `steps: content ${ingredient.content} không xác định`
+                    message: `_ingredients: content ${ingredient.content} không xác định`
                 });
             } 
             // return {
@@ -229,14 +229,8 @@ exports.addIngredients = async function (req, res) {
 
 
 exports.removeIngredient = async function (req, res) {
-    if (!req.body) {
-        return res.status(500).json({
-            success: false, 
-            message: 'Empty body'
-        });
-    }
     try {
-        const ingredientID = req.body.ingredientID;
+        const ingredientID = req.query.ingredientID;
 
         if (!ingredientID) {
             return res.status(500).json({

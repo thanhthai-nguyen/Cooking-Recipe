@@ -10,6 +10,7 @@ const Recipe = require('../controllers/RecipeController');
 const Tag = require('../controllers/TagController');
 const Step = require('../controllers/StepController');
 const Ingredient  = require('../controllers/IngredientController');
+const Picture  = require('../controllers/PictureController');
 
 
 const router = express.Router();
@@ -103,12 +104,16 @@ router.post('/tag/removeTag', Tag.removeTag);
 // StepController
 router.post('/step/updateStep', Step.updateStep);
 router.post('/step/addSteps', Step.addSteps);
-router.post('/step/removeStep', Step.removeStep);
+router.get('/step/removeStep', Step.removeStep);
 
 // IngredientController
 router.post('/ingredient/updateIngredient', Ingredient.updateIngredient);
 router.post('/ingredient/addIngredients', Ingredient.addIngredients);
-router.post('/ingredient/removeIngredient', Ingredient.removeIngredient);
+router.get('/ingredient/removeIngredient', Ingredient.removeIngredient);
+
+// PictureController
+router.post('/picture/addPictures', Picture.addPictures);
+router.get('/picture/removePicture', Picture.removePicture);
 
 
 module.exports = router;
