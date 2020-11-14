@@ -208,14 +208,8 @@ exports.getAllOrigins = async function (req, res) {
 };
 
 exports.removeOrigin = async function (req, res) {
-    if (!req.body) {
-        return res.status(500).json({
-            success: false, 
-            message: 'Empty body'
-        });
-    }
     try {
-        const originID = req.body.originID;
+        const originID = req.query.originID;
 
         if (!originID) {
             return res.status(500).json({

@@ -80,14 +80,14 @@ router.post('/origin/createOrigin', Origin.createOrigin);
 router.post('/origin/updateOrigin', Origin.updateOrigin);
 router.get('/origin/getOrigin', Origin.getOrigin);
 router.get('/origin/getAllOrigins', Origin.getAllOrigins);
-router.post('/origin/removeOrigin', Origin.removeOrigin);
+router.get('/origin/removeOrigin', Origin.removeOrigin);
 
 // MainIngredient
 router.post('/ingredient/createMainIngredient', MainIngredient.createMainIngredient);
 router.post('/ingredient/updateMainIngredient', MainIngredient.updateMainIngredient);
 router.get('/ingredient/getMainIngredient', MainIngredient.getMainIngredient);
 router.get('/ingredient/getAllMainIngredient', MainIngredient.getAllMainIngredient);
-router.post('/ingredient/removeMainIngredient', MainIngredient.removeMainIngredient);
+router.get('/ingredient/removeMainIngredient', MainIngredient.removeMainIngredient);
 
 
 // RecipeController

@@ -45,12 +45,59 @@ exports.updatePrepTime = async function (req, res) {
             });
         } 
 
-        return res.status(200).json({
+        const recipeID = _prepTime.recipeID;
+
+        const recipe = await Recipe.findOne({
+            _id: recipeID,
+            isDeleted: false
+        });
+
+        const listIngredients = await Ingredient.find({
+            recipeID: recipeID,
+            isDeleted: false
+        }, 'content')
+
+        const listSteps = await Step.find({
+            recipeID: recipeID,
+            isDeleted: false
+        }, 'content')
+
+        const listPictures = await Picture.find({
+            recipeID: recipeID,
+            isDeleted: false
+        }, 'img_url')
+
+        const listTags = await Tag.find({
+            recipeID: recipeID,
+            isDeleted: false
+        }, 'originID main_ingredientID')
+        .populate({
+            path: 'originID',
+            select: 'name img_url des',
+            model: Origin
+            })
+        .populate({
+            path: 'main_ingredientID',
+            select: 'category name img_url des',
+            model: MainIngredient
+        });
+        
+        const prepTime = await PrepTime.find({
+            recipeID: recipeID,
+            isDeleted: false
+        })
+
+        return res.json({
             success: true,
-            code: "SUCCESS-006",
-            message: 'Cập nhật thành công.',
-            PrepTime: _prepTime
-        }); 
+            code: "SUCCESS-010",
+            message: "Cập nhật thành công",
+            Recipe: recipe,
+            Ingredients: listIngredients,
+            Steps: listSteps,
+            Pictures: listPictures,
+            Tags: listTags,
+            PrepTime: prepTime
+        })
 
     } catch (error) {
         return res.status(500).json({

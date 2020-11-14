@@ -217,14 +217,8 @@ exports.getAllMainIngredient = async function (req, res) {
 };
 
 exports.removeMainIngredient = async function (req, res) {
-    if (!req.body) {
-        return res.status(500).json({
-            success: false, 
-            message: 'Empty body'
-        });
-    }
     try {
-        const mainIngredientID = req.body.mainIngredientID;
+        const mainIngredientID = req.query.mainIngredientID;
 
         if (!mainIngredientID) {
             return res.status(500).json({
