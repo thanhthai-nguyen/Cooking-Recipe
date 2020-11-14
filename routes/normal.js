@@ -99,7 +99,7 @@ router.get('/recipe/removeRecipe', Recipe.removeRecipe);
 
 // TagController
 router.post('/tag/addTags', Tag.addTags);
-router.post('/tag/removeTag', Tag.removeTag);
+router.get('/tag/removeTag', Tag.removeTag);
 
 // StepController
 router.post('/step/updateStep', Step.updateStep);

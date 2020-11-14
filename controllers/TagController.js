@@ -202,14 +202,8 @@ exports.addTags = async function (req, res) {
 
 
 exports.removeTag = async function (req, res) {
-    if (!req.body) {
-        return res.status(500).json({
-            success: false, 
-            message: 'Empty body'
-        });
-    }
     try {
-        const tagID = req.body.tagID;
+        const tagID = req.query.tagID;
 
         if (!tagID) {
             return res.status(500).json({
