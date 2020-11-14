@@ -39,6 +39,8 @@ router.post('/user/remove', User.remove);
 // RecipeController
 router.post('/recipe/createRecipe', Recipe.createRecipe);
 router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
+router.get('/recipe/confirmRecipe', Recipe.confirmRecipe);
+
 
 
 

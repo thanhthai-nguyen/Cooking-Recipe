@@ -96,6 +96,9 @@ router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
 router.post('/recipe/updateRecipe', Recipe.updateRecipe);
 router.get('/recipe/getRecipe', Recipe.getRecipe);
 router.get('/recipe/removeRecipe', Recipe.removeRecipe);
+// router.get('/recipe/confirmRecipe', Recipe.confirmRecipe);
+router.get('/recipe/getAllRecipesForOthers', Recipe.getAllRecipesForOthers);
+
 
 // TagController
 router.post('/tag/addTags', Tag.addTags);

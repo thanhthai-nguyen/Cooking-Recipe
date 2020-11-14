@@ -627,9 +627,43 @@ exports.getRecipe = async function (req, res) {
     }
 };
 
+// Dành cho ADMIN
 exports.getAllRecipes = async function (req, res) {
     try {
         const _recipes = await Recipe.find({
+            isDeleted: false 
+        })
+        .sort({createdAt: -1});
+        
+        if (!_recipes || _recipes == null || _recipes == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-022",
+                message: 'Không tìm thấy bản ghi.'
+            });
+        } 
+
+        return res.status(200).json({
+            success: true,
+            code: "SUCCESS-008",
+            message: 'Lấy bản ghi thành công.',
+            Recipes: _recipes
+        }); 
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-008",
+            message: error.message
+        })   
+    }
+};
+
+// Dành cho Others
+exports.getAllRecipesForOthers = async function (req, res) {
+    try {
+        const _recipes = await Recipe.find({
+            isConfirmed: true,
             isDeleted: false 
         })
         .sort({createdAt: -1});
@@ -728,6 +762,61 @@ exports.removeRecipe = async function (req, res) {
         return res.status(500).json({
             success: false, 
             code: "CATCH-009",
+            message: error.message
+        })   
+    }
+};
+
+exports.confirmRecipe = async function (req, res) {
+    try {
+         //Make sure the passed id is that of the logged in user
+        if (!req.isAuthenticated() || req.user.userRole != 'ADMIN') {
+            return res.status(401).json({
+                success: false, 
+                message: "Sorry, you don't have the permission to update this data."
+            });
+        }
+        const recipeID = req.query.recipeID;
+
+        if (!recipeID) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-018",
+                message: 'recipeID không xác định.'
+            });
+        } 
+
+        const _recipe = await Recipe.findOneAndUpdate({
+            _id: recipeID,
+            isDeleted: false 
+        },
+        {
+            isConfirmed: true
+        }, 
+        {
+            new: true
+        });
+        
+
+        if (!_recipe || _recipe == null || _recipe == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-019",
+                message: 'Cập nhật bản ghi không thành công! Kiểm tra lại recipeID.'
+            });
+        } 
+
+        return res.status(200).json({
+            success: true,
+            code: "SUCCESS-006",
+            message: 'Cập nhật thành công.',
+            Recipe: _recipe
+        }); 
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-006",
             message: error.message
         })   
     }
