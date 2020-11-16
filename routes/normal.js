@@ -101,10 +101,16 @@ router.post('/recipe/updateRecipe', Recipe.updateRecipe);
 router.get('/recipe/getRecipe', Recipe.getRecipe);
 // Hủy 1 công thức món ăn
 router.get('/recipe/removeRecipe', Recipe.removeRecipe);
+
 // router.get('/recipe/confirmRecipe', Recipe.confirmRecipe);
 
 // Lấy tất cả công thức món ăn - USER/GUEST
 router.get('/recipe/getAllRecipesForOthers', Recipe.getAllRecipesForOthers);
+// Tìm công thức món ăn theo các tags
+router.post('/recipe/getRecipeByTags', Recipe.getRecipeByTags);
+// Search công thức món ăn
+router.get('/recipe/searchRecipe', Recipe.searchRecipe);
+
 
 
 // TagController

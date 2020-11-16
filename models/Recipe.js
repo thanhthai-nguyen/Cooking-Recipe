@@ -12,6 +12,11 @@ const RecipeSchema = new mongoose.Schema({
         required: true,
     },
 
+    nameURL: {
+        type: String,
+        required: true,
+    },
+
     des: {
         type: String,
         required: true,
@@ -66,8 +71,22 @@ const RecipeSchema = new mongoose.Schema({
         default: false
     }
 
-}, {timestamps: true});
+}, {
+    toJSON: { 
+        virtuals: true 
+    },
+    toObject: { 
+        virtuals: true 
+    },
+    timestamps: true
+});
 
+// Virtual populate
+RecipeSchema.virtual("tags", {
+    ref: "Tag",
+    foreignField: "recipeID",
+    localField: "_id",
+  });
 
 mongoose.set("useFindAndModify", false);
 module.exports = mongoose.model('Recipe', RecipeSchema);

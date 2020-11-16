@@ -40,6 +40,9 @@ exports.createRecipe = async function (req, res) {
             num_of_reviews: req.body.recipe.num_of_reviews
         }
 
+        recipe.nameURL = toSlug(req.body.name);
+
+
         if (req.user.userRole === 'ADMIN') {
             recipe.isConfirmed = true
         }
@@ -821,3 +824,128 @@ exports.confirmRecipe = async function (req, res) {
         })   
     }
 };
+
+
+exports.getRecipeByTags = async function (req, res) {
+    try {
+        const {
+            page,
+            origins,
+            main_ingredients
+        } = req.body
+
+        let listRecipes = [];
+
+        const listOrigins = origins.split(',');
+
+        for (let i = 0; i < listOrigins.length; i++) {
+            const infoRecipes = await Tag.find({ 
+                originID: listOrigins[i],
+                isDeleted: false
+            });
+
+            await Promise.all(infoRecipes.map(async recipe => {
+                listRecipes.push(recipe.recipeID);
+            }))
+
+        }
+
+
+        const listMainIngredients = main_ingredients.split(',');
+
+        for (let i = 0; i < listMainIngredients.length; i++) {
+            const infoRecipes = await Tag.find({ 
+                main_ingredientID: listMainIngredients[i],
+                isDeleted: false
+            });
+
+            await Promise.all(infoRecipes.map(async recipe => {
+                listRecipes.push(recipe.recipeID);
+            }))
+
+        }
+
+        if (listRecipes.length > 0) {
+            const uniqueSet = new Set(listRecipes);
+    
+            const backToArray = [...uniqueSet];
+
+            
+            const _recipes = await Promise.all(backToArray.map(async recipe => {
+                return await Recipe.findOne({ 
+                    _id: recipe,
+                    isDeleted: false,
+                    isConfirmed: true
+                })   
+                .populate('tags');       
+            }))
+
+            let result = [];
+            for (let i = 0; i < _recipes.length; i++) {
+                _recipes[i] == null || !_recipes[i] || _recipes[i] ==''
+                ? result : result.push(_recipes[i])
+            }
+            if (!_recipes || _recipes == null || _recipes == '') {
+                return res.status(500).json({
+                    success: true,
+                    code: "ERROR-021",
+                    message: 'Không tìm thấy bản ghi.'
+                });
+            } else {
+                return res.json({
+                    success: true,
+                    code: "SUCCESS-010",
+                    message: "Lấy bản ghi thành công",
+                    Recipes: result,
+                })
+            }
+        } else {
+            return res.status(500).json({
+                success: true,
+                code: "ERROR-021",
+                message: 'Không tìm thấy bản ghi.'
+            });
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-007",
+            message: error.message
+        })   
+    }
+};
+
+
+exports.searchRecipe = async (req, res) => {
+    const _keySearch = toSlug(req.query.keySearch);
+    const recipes = await Recipe.find({
+        nameURL: { 
+            $regex: _keySearch
+        },
+    });
+    
+    res.send(recipes);
+};
+
+//========Chuyển dạng
+const toSlug = str => {
+    str = str.toLowerCase();
+    str = str.replace(/(à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ)/g, "a");
+    str = str.replace(/(è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ)/g, "e");
+    str = str.replace(/(ì|í|ị|ỉ|ĩ)/g, "i");
+    str = str.replace(/(ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ)/g, "o");
+    str = str.replace(/(ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ)/g, "u");
+    str = str.replace(/(ỳ|ý|ỵ|ỷ|ỹ)/g, "y");
+    str = str.replace(/(đ)/g, "d");
+    // Xóa ký tự đặc biệt
+    str = str.replace(/([^0-9a-z-\s])/g, "");
+    // Xóa khoảng trắng thay bằng ký tự -
+    str = str.replace(/(\s+)/g, "-");
+    // xóa phần dự - ở đầu
+    str = str.replace(/^-+/g, "");
+    // xóa phần dư - ở cuối
+    str = str.replace(/-+$/g, "");
+    // return
+    return str;
+  };

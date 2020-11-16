@@ -10,6 +10,8 @@ const validate = require('../middlewares/validate');
 const router = express.Router();
 
 const Recipe = require('../controllers/RecipeController');
+const History = require('../controllers/HistoryController');
+const Favorite = require('../controllers/FavoriteController');
 
 
 //INDEX
@@ -41,7 +43,17 @@ router.post('/recipe/createRecipe', Recipe.createRecipe);
 router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
 router.get('/recipe/confirmRecipe', Recipe.confirmRecipe);
 
+// FavoriteController
+router.post('/favorite/createFavorite', Favorite.createFavorite);
+router.get('/favorite/getAllFavorites', Favorite.getAllFavorites);
+router.get('/favorite/getAllFavoritesOfUser', Favorite.getAllFavoritesOfUser);
+router.get('/favorite/removeFavorite', Favorite.removeFavorite);
 
+// HistoryController
+router.post('/history/createHistory', History.createHistory);
+router.get('/history/getAllHistories', History.getAllHistories);
+router.get('/history/getAllHistoriesOfUser', History.getAllHistoriesOfUser);
+router.get('/history/removeHistory', History.removeHistory);
 
 
 module.exports = router;

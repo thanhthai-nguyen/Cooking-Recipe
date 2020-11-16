@@ -40,6 +40,18 @@ const TagSchema = new mongoose.Schema({
 
 }, {timestamps: true});
 
+TagSchema.pre(/^find/, function (next) {
+    this
+        .populate({
+            path: "originID",
+            select: "name img_url des",
+        })
+        .populate({
+            path: "main_ingredientID",
+            select: 'category name img_url des',
+        });
+    next();
+  });
 
 mongoose.set("useFindAndModify", false);
 module.exports = mongoose.model('Tag', TagSchema);
