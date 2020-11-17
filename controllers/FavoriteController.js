@@ -1,5 +1,7 @@
 const Favorite = require('../models/Favorite');
 const Recipe = require('../models/Recipe');
+const sendEMail = require('../helpers/sendEmail');
+const { UserRefreshClient } = require('google-auth-library');
 
 
 exports.createFavorite = async function (req, res) {
@@ -19,6 +21,7 @@ exports.createFavorite = async function (req, res) {
     }
 
     try {
+        const content = {};
         const data = {
             userID: req.user._id,
             recipeID: req.body.recipeID,
@@ -28,7 +31,7 @@ exports.createFavorite = async function (req, res) {
             return res.status(500).json({
                 success: false,
                 code: "ERROR-000",
-                message: 'userID không xác định.'
+                message: 'recipeID không xác định.'
             });
         } else {
             const checkRecipe = await Recipe.findOne({
@@ -43,6 +46,11 @@ exports.createFavorite = async function (req, res) {
                     message: 'Recipe không tồn tại.'
                 });
             } 
+
+            content.ownerID = checkRecipe.userID;
+            content.recipe = checkRecipe.name;
+            content.recipeLike = checkRecipe.like;
+
         }
 
 
@@ -70,17 +78,41 @@ exports.createFavorite = async function (req, res) {
                 });
             } 
 
-            const _favorites = await Favorite.find({
-                userID: userID,
-                isDeleted: false
+            const _recipe = await Recipe.findOneAndUpdate({
+                _id: data.recipeID,
+                isDeleted: false 
+            }, 
+            {
+                like: like + 1
+            }, 
+            {
+                new: true
+            });
+
+            // const _favorites = await Favorite.find({
+            //     userID: userID,
+            //     isDeleted: false
+            // })
+            // .sort({createdAt: -1});
+
+            const _owner = await UserRefreshClient.findOne({
+                _id:  content.ownerID,
             })
-            .sort({createdAt: -1});
+             // send email
+            let link = "http://" + req.headers.host + "/api/normal/reset/" + user.resetPasswordToken;
+            let html = `<p>Chào ${_owner.username}</p>
+                        <p>Tài khoản ${req.user.username} đã yêu thích bài viết ${content.recipe} của bạn.</p> 
+                        <p>Bài viết ${content.recipe} của bạn có ${content.recipeLike} lượt thích.</p>
+                        <p>Xem chi tiết bài viết: <a href="${link}">xem tại đây.</a></p>`;
+
+            await new sendEMail(_owner, html).notificationFavorite();
 
             return res.status(200).json({
                 success: true,
                 code: "SUCCESS-000",
                 message: 'Danh sách Favorites.',
-                Favorites: _favorites
+                // Favorites: _favorites
+                Recipe: _recipe
             });            
         }
 
@@ -204,14 +236,25 @@ exports.removeFavorite = async function (req, res) {
                 code: "ERROR-011",
                 message: 'Hủy bản ghi không thành công! Kiểm tra lại favoriteID.'
             });
-        } 
+        } else {
+            const _recipe = await Recipe.findOneAndUpdate({
+                _id: _favorite.recipeID,
+                isDeleted: false 
+            }, 
+            {
+                like: like - 1
+            }, 
+            {
+                new: true
+            });
 
-        return res.status(200).json({
-            success: true,
-            code: "SUCCESS-004",
-            message: 'Hủy bản ghi thành công.',
-            // Origin: _origin
-        }); 
+            return res.status(200).json({
+                success: true,
+                code: "SUCCESS-004",
+                message: 'Hủy bản ghi thành công.',
+                // Origin: _origin
+            }); 
+        }
 
     } catch (error) {
         return res.status(500).json({

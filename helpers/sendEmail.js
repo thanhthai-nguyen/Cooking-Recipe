@@ -37,7 +37,7 @@ module.exports = class Email {
 
   async sendWelcome() {
     await this.send(
-        'Welcome to the Natours family!'
+        'Welcome to us!'
     );
   }
 
@@ -62,6 +62,12 @@ module.exports = class Email {
   async accountVerificationToken() {
     await this.send(
       'Account Verification Token'
+    );
+  }
+
+  async notificationFavorite() {
+    await this.send(
+      'Favorite Posts'
     );
   }
 };

@@ -35,16 +35,25 @@ const RecipeSchema = new mongoose.Schema({
     level: {
         type: Number,
         required: true,
+        default: 0
     },
 
     rate: {
         type: Number,
         required: true,
+        default: 0
     },
 
     num_of_reviews: {
         type: Number,
         required: true,
+        default: 0
+    },
+
+    like: {
+        type: Number,
+        required: true,
+        default: 0
     },
 
     isConfirmed: {

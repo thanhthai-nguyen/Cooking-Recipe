@@ -44,11 +44,11 @@ TagSchema.pre(/^find/, function (next) {
     this
         .populate({
             path: "originID",
-            select: "name img_url des",
+            select: "name",
         })
         .populate({
             path: "main_ingredientID",
-            select: 'category name img_url des',
+            select: 'name',
         });
     next();
   });

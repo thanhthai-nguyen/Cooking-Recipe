@@ -20,7 +20,8 @@ const HistorySchema = new mongoose.Schema({
 
     rate: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     },
 
     createdAt: {

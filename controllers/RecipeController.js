@@ -40,7 +40,7 @@ exports.createRecipe = async function (req, res) {
             num_of_reviews: req.body.recipe.num_of_reviews
         }
 
-        recipe.nameURL = toSlug(req.body.name);
+        recipe.nameURL = toSlug(req.body.recipe.name);
 
 
         if (req.user.userRole === 'ADMIN') {
@@ -278,6 +278,9 @@ exports.createRecipeNoToken = async function (req, res) {
             rate: req.body.recipe.rate,
             num_of_reviews: req.body.recipe.num_of_reviews
         }
+
+        recipe.nameURL = toSlug(req.body.recipe.name);
+
 
         const checkUser = await User.findOne({
             isDeleted: false
