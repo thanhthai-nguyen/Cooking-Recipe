@@ -92,7 +92,7 @@ exports.createFavorite = async function (req, res) {
             // })
             // .sort({createdAt: -1});
 
-            const _owner = await UserRefreshClient.findOne({
+            const _owner = await User.findOne({
                 _id:  content.ownerID,
             })
              // send email
