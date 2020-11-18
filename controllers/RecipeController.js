@@ -636,25 +636,50 @@ exports.getRecipe = async function (req, res) {
 // Dành cho ADMIN
 exports.getAllRecipes = async function (req, res) {
     try {
-        const _recipes = await Recipe.find({
-            isDeleted: false 
-        })
-        .sort({createdAt: -1});
-        
-        if (!_recipes || _recipes == null || _recipes == '') {
-            return res.status(500).json({
-                success: false,
-                code: "ERROR-022",
-                message: 'Không tìm thấy bản ghi.'
-            });
-        } 
+        if (!req.query.page) {
+            const _recipes = await Recipe.find({
+                isDeleted: false 
+            })
+            .sort({createdAt: -1});
 
-        return res.status(200).json({
-            success: true,
-            code: "SUCCESS-008",
-            message: 'Lấy bản ghi thành công.',
-            Recipes: _recipes
-        }); 
+            if (!_recipes || _recipes == null || _recipes == '') {
+                return res.status(500).json({
+                    success: false,
+                    code: "ERROR-022",
+                    message: 'Không tìm thấy bản ghi.'
+                });
+            } else {
+                return res.status(200).json({
+                    success: true,
+                    code: "SUCCESS-008",
+                    message: 'Lấy bản ghi thành công.',
+                    Recipes: _recipes
+                });
+            }
+        } else {
+            
+            const _recipes = await Recipe.find({
+                isDeleted: false 
+            })
+            .limit(20)
+            .skip((req.query.page - 1) * 20)
+            .sort({createdAt: -1});
+
+            if (!_recipes || _recipes == null || _recipes == '') {
+                return res.status(500).json({
+                    success: false,
+                    code: "ERROR-022",
+                    message: 'Không tìm thấy bản ghi.'
+                });
+            } else {
+                return res.status(200).json({
+                    success: true,
+                    code: "SUCCESS-008",
+                    message: 'Lấy bản ghi thành công.',
+                    Recipes: _recipes
+                });
+            }
+        }
 
     } catch (error) {
         return res.status(500).json({
@@ -668,26 +693,51 @@ exports.getAllRecipes = async function (req, res) {
 // Dành cho Others
 exports.getAllRecipesForOthers = async function (req, res) {
     try {
-        const _recipes = await Recipe.find({
-            isConfirmed: true,
-            isDeleted: false 
-        })
-        .sort({createdAt: -1});
-        
-        if (!_recipes || _recipes == null || _recipes == '') {
-            return res.status(500).json({
-                success: false,
-                code: "ERROR-022",
-                message: 'Không tìm thấy bản ghi.'
-            });
-        } 
+        if (!req.query.page) {
+            const _recipes = await Recipe.find({
+                isDeleted: false,
+                isConfirmed: true
+            })
+            .sort({createdAt: -1});
 
-        return res.status(200).json({
-            success: true,
-            code: "SUCCESS-008",
-            message: 'Lấy bản ghi thành công.',
-            Recipes: _recipes
-        }); 
+            if (!_recipes || _recipes == null || _recipes == '') {
+                return res.status(500).json({
+                    success: false,
+                    code: "ERROR-022",
+                    message: 'Không tìm thấy bản ghi.'
+                });
+            } else {
+                return res.status(200).json({
+                    success: true,
+                    code: "SUCCESS-008",
+                    message: 'Lấy bản ghi thành công.',
+                    Recipes: _recipes
+                });
+            }
+        } else {
+            const _recipes = await Recipe.find({
+                isDeleted: false,
+                isConfirmed: true
+            })
+            .limit(20)
+            .skip((req.query.page - 1) * 20)
+            .sort({createdAt: -1});
+
+            if (!_recipes || _recipes == null || _recipes == '') {
+                return res.status(500).json({
+                    success: false,
+                    code: "ERROR-022",
+                    message: 'Không tìm thấy bản ghi.'
+                });
+            } else {
+                return res.status(200).json({
+                    success: true,
+                    code: "SUCCESS-008",
+                    message: 'Lấy bản ghi thành công.',
+                    Recipes: _recipes
+                });
+            }
+        }
 
     } catch (error) {
         return res.status(500).json({
