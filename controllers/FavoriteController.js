@@ -2,6 +2,8 @@ const Favorite = require('../models/Favorite');
 const Recipe = require('../models/Recipe');
 const sendEMail = require('../helpers/sendEmail');
 const User = require('../models/user');
+const {ObjectId} = require('mongodb');
+
 
 
 exports.createFavorite = async function (req, res) {
@@ -47,7 +49,7 @@ exports.createFavorite = async function (req, res) {
                 });
             } 
 
-            content.ownerID = checkRecipe.userID;
+            content.ownerID = ObjectId(checkRecipe.userID).toString();
             content.recipe = checkRecipe.name;
             content.recipeLike = checkRecipe.like;
 
@@ -93,9 +95,10 @@ exports.createFavorite = async function (req, res) {
             // })
             // .sort({createdAt: -1});
 
-            const _owner = await User.findOne({
+            const _owner = await User.findOne({ 
                 _id:  content.ownerID,
-            })
+                isDeleted: false 
+            });
              // send email
             let link = "http://" + req.headers.host;
             let html = `<p>Chào ${_owner.username}</p>
