@@ -78,16 +78,14 @@ exports.createFavorite = async function (req, res) {
                 });
             } 
 
-            const _recipe = await Recipe.findOneAndUpdate({
-                _id: data.recipeID,
+            const _recipe = await Recipe.findOne({
+                _id: _favorite.recipeID,
                 isDeleted: false 
-            }, 
-            {
-                like: like + 1
-            }, 
-            {
-                new: true
             });
+
+            _recipe.like = _recipe.like + 1;
+
+            await _recipe.save();
 
             // const _favorites = await Favorite.find({
             //     userID: userID,
@@ -237,16 +235,14 @@ exports.removeFavorite = async function (req, res) {
                 message: 'Hủy bản ghi không thành công! Kiểm tra lại favoriteID.'
             });
         } else {
-            const _recipe = await Recipe.findOneAndUpdate({
+            const _recipe = await Recipe.findOne({
                 _id: _favorite.recipeID,
                 isDeleted: false 
-            }, 
-            {
-                like: like - 1
-            }, 
-            {
-                new: true
             });
+
+            _recipe.like = _recipe.like - 1;
+
+            await _recipe.save();
 
             return res.status(200).json({
                 success: true,
