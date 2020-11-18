@@ -1,7 +1,6 @@
 const Favorite = require('../models/Favorite');
 const Recipe = require('../models/Recipe');
 const sendEMail = require('../helpers/sendEmail');
-const { UserRefreshClient } = require('google-auth-library');
 
 
 exports.createFavorite = async function (req, res) {
