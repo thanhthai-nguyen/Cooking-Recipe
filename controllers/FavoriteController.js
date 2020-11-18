@@ -79,7 +79,7 @@ exports.createFavorite = async function (req, res) {
             } 
 
             const _recipe = await Recipe.findOne({
-                _id: _favorite.recipeID,
+                _id: data.recipeID,
                 isDeleted: false 
             });
 
