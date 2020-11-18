@@ -1,6 +1,7 @@
 const Favorite = require('../models/Favorite');
 const Recipe = require('../models/Recipe');
 const sendEMail = require('../helpers/sendEmail');
+const User = require('../models/user');
 
 
 exports.createFavorite = async function (req, res) {
