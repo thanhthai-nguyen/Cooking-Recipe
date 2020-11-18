@@ -99,7 +99,7 @@ exports.createFavorite = async function (req, res) {
                 _id:  content.ownerID,
             })
              // send email
-            let link = "http://" + req.headers.host + "/api/normal/reset/" + user.resetPasswordToken;
+            let link = "http://" + req.headers.host;
             let html = `<p>Chào ${_owner.username}</p>
                         <p>Tài khoản ${req.user.username} đã yêu thích bài viết ${content.recipe} của bạn.</p> 
                         <p>Bài viết ${content.recipe} của bạn có ${content.recipeLike} lượt thích.</p>
