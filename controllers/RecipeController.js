@@ -1010,4 +1010,4 @@ const toSlug = str => {
     str = str.replace(/-+$/g, "");
     // return
     return str;
-  };
+};

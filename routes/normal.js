@@ -13,7 +13,8 @@ const Ingredient  = require('../controllers/IngredientController');
 const Picture  = require('../controllers/PictureController');
 const PrepTime = require('../controllers/PrepTimeController');
 const Review = require('../controllers/ReviewController');
-
+const History = require('../controllers/HistoryController');
+const Favorite = require('../controllers/FavoriteController');
 
 const router = express.Router();
 
@@ -139,5 +140,13 @@ router.post('/preptime/updatePrepTime', PrepTime.updatePrepTime);
 
 // ReviewController
 router.get('/review/getAllReviewsOfRecipe', Review.getAllReviewsOfRecipe);
+
+// FavoriteController
+router.get('/favorite/getAllFavorites', Favorite.getAllFavorites);
+router.get('/favorite/getAllFavoritesOfUser', Favorite.getAllFavoritesOfUser);
+
+// HistoryController
+router.get('/history/getAllHistories', History.getAllHistories);
+router.get('/history/getAllHistoriesOfUser', History.getAllHistoriesOfUser);
 
 module.exports = router;

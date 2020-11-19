@@ -48,8 +48,9 @@ exports.createFavorite = async function (req, res) {
                     message: 'Recipe không tồn tại.'
                 });
             } 
+            console.log(checkRecipe.userID.toString());
 
-            content.ownerID = ObjectId(checkRecipe.userID).toString();
+            content.ownerID = checkRecipe.userID.toString();
             content.recipe = checkRecipe.name;
             // content.recipeLike = checkRecipe.like;
 
