@@ -64,7 +64,7 @@ exports.createHistory = async function (req, res) {
                 return res.status(200).json({
                     success: true,
                     code: "SUCCESS-000",
-                    message: 'Danh sách Favorites.',
+                    message: 'Danh sách Histories.',
                     Histories: _histories
                 });            
             }
@@ -131,6 +131,7 @@ exports.getAllHistoriesOfUser = async function (req, res) {
             userID: userID,
             isDeleted: false 
         })
+        .limit(20)
         .sort({createdAt: -1})
         .populate({
             path: 'recipeID',
@@ -189,6 +190,52 @@ exports.removeHistory = async function (req, res) {
                 success: false,
                 code: "ERROR-011",
                 message: 'Hủy bản ghi không thành công! Kiểm tra lại historyID.'
+            });
+        } 
+
+        return res.status(200).json({
+            success: true,
+            code: "SUCCESS-004",
+            message: 'Hủy bản ghi thành công.',
+            // Origin: _origin
+        }); 
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-004",
+            message: error.message
+        })   
+    }
+};
+
+exports.removeAllHistories = async function (req, res) {
+    try {
+        const userID = req.query.userID;
+
+        if (!userID) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-010",
+                message: 'userID không xác định.'
+            });
+        } 
+
+        const _history = await History.findOneAndUpdate({
+            userID: userID,
+            isDeleted: false 
+        }, 
+        {
+            isDeleted: true
+        }, 
+        {new: true});
+        
+
+        if (!_history || _history == null || _history == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-011",
+                message: 'Hủy bản ghi không thành công! Kiểm tra lại userID.'
             });
         } 
 

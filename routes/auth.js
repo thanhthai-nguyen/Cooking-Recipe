@@ -51,6 +51,7 @@ router.get('/favorite/removeFavorite', Favorite.removeFavorite);
 // HistoryController
 router.post('/history/createHistory', History.createHistory);
 router.get('/history/removeHistory', History.removeHistory);
+router.get('/history/removeAllHistories', History.removeAllHistories);
 
 // ReviewController
 router.post('/review/createReview', Review.createReview);
