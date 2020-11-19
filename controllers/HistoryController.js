@@ -221,7 +221,7 @@ exports.removeAllHistories = async function (req, res) {
             });
         } 
 
-        const _history = await History.update({
+        const _history = await History.updateMany({
             userID: userID,
             isDeleted: false 
         }, 
