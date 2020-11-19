@@ -51,7 +51,7 @@ TagSchema.pre(/^find/, function (next) {
             select: 'name',
         });
     next();
-  });
+});
 
 mongoose.set("useFindAndModify", false);
 module.exports = mongoose.model('Tag', TagSchema);

@@ -12,6 +12,8 @@ const Step = require('../controllers/StepController');
 const Ingredient  = require('../controllers/IngredientController');
 const Picture  = require('../controllers/PictureController');
 const PrepTime = require('../controllers/PrepTimeController');
+const Review = require('../controllers/ReviewController');
+
 
 const router = express.Router();
 
@@ -135,5 +137,7 @@ router.get('/picture/removePicture', Picture.removePicture);
 router.post('/preptime/updatePrepTime', PrepTime.updatePrepTime);
 // router.get('/preptime/removePrepTime', PrepTime.removePrepTime);
 
+// ReviewController
+router.get('/review/getAllReviewsOfRecipe', Review.getAllReviewsOfRecipe);
 
 module.exports = router;

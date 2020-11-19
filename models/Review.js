@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const HistorySchema = new mongoose.Schema({
+const ReviewSchema = new mongoose.Schema({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -18,7 +18,7 @@ const HistorySchema = new mongoose.Schema({
         required: false
     },
 
-    rate: {
+    stars: {
         type: Number,
         required: true,
         default: 0
@@ -45,6 +45,15 @@ const HistorySchema = new mongoose.Schema({
 
 }, {timestamps: true});
 
+ReviewSchema.pre(/^find/, function (next) {
+    this
+        .populate({
+            path: "userID",
+            select: "username profileImage",
+        });
+    next();
+});
+
 
 mongoose.set("useFindAndModify", false);
-module.exports = mongoose.model('History', HistorySchema);
+module.exports = mongoose.model('Review', ReviewSchema);

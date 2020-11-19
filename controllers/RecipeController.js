@@ -6,6 +6,8 @@ const Step = require('../models/Step');
 const Picture = require('../models/Picture');
 const Tag = require('../models/Tag');
 const PrepTime = require('../models/PrepTime');
+const Review = require('../models/Review');
+
 
 const User = require('../models/user');
 
@@ -608,7 +610,13 @@ exports.getRecipe = async function (req, res) {
             const prepTime = await PrepTime.find({
                 recipeID: recipeID,
                 isDeleted: false
+            });
+
+            const _reviews = await Review.find({
+                recipeID: recipeID,
+                isDeleted: false
             })
+            .sort({createdAt: -1})
     
             return res.json({
                 success: true,
@@ -619,7 +627,8 @@ exports.getRecipe = async function (req, res) {
                 Steps: listSteps,
                 Pictures: listPictures,
                 Tags: listTags,
-                PrepTime: prepTime
+                PrepTime: prepTime,
+                Reviews: _reviews
             })
         }
 

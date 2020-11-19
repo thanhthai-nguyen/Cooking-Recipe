@@ -12,6 +12,7 @@ const router = express.Router();
 const Recipe = require('../controllers/RecipeController');
 const History = require('../controllers/HistoryController');
 const Favorite = require('../controllers/FavoriteController');
+const Review = require('../controllers/ReviewController');
 
 
 //INDEX
@@ -54,6 +55,10 @@ router.post('/history/createHistory', History.createHistory);
 router.get('/history/getAllHistories', History.getAllHistories);
 router.get('/history/getAllHistoriesOfUser', History.getAllHistoriesOfUser);
 router.get('/history/removeHistory', History.removeHistory);
+
+// ReviewController
+router.post('/review/createReview', Review.createReview);
+router.get('/review/removeReview', Review.removeReview);
 
 
 module.exports = router;

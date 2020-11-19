@@ -95,7 +95,34 @@ RecipeSchema.virtual("tags", {
     ref: "Tag",
     foreignField: "recipeID",
     localField: "_id",
-  });
+    justOne: false,
+    options: { 
+        match: { 
+            isDeleted: false 
+        },
+        // sort: { 
+        //     createdAt: -1 
+        // }, 
+        // limit: 5 
+    }
+});
+
+// Virtual populate
+RecipeSchema.virtual("reviews", {
+    ref: "Review",
+    foreignField: "recipeID",
+    localField: "_id",
+    justOne: false,
+    options: { 
+        match: { 
+            isDeleted: false 
+        },
+        sort: { 
+            createdAt: -1 
+        }, 
+        // limit: 5 
+    }
+});
 
 mongoose.set("useFindAndModify", false);
 module.exports = mongoose.model('Recipe', RecipeSchema);
