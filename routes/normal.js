@@ -142,11 +142,11 @@ router.post('/preptime/updatePrepTime', PrepTime.updatePrepTime);
 router.get('/review/getAllReviewsOfRecipe', Review.getAllReviewsOfRecipe);
 
 // FavoriteController
-router.get('/favorite/getAllFavorites', Favorite.getAllFavorites);
+// router.get('/favorite/getAllFavorites', Favorite.getAllFavorites);
 router.get('/favorite/getAllFavoritesOfUser', Favorite.getAllFavoritesOfUser);
 
 // HistoryController
-router.get('/history/getAllHistories', History.getAllHistories);
+// router.get('/history/getAllHistories', History.getAllHistories);
 router.get('/history/getAllHistoriesOfUser', History.getAllHistoriesOfUser);
 
 module.exports = router;

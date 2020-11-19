@@ -20,7 +20,7 @@ exports.createHistory = async function (req, res) {
 
     try {
         const data = {
-            userID: req.user._id,
+            userID: req.user._id.toString(),
             recipeID: req.body.recipeID,
         }
 
@@ -56,7 +56,7 @@ exports.createHistory = async function (req, res) {
                 } 
     
                 const _histories = await History.find({
-                    userID: userID,
+                    userID: data.userID,
                     isDeleted: false
                 })
                 .sort({createdAt: -1});
