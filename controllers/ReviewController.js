@@ -1,9 +1,7 @@
 const Recipe = require('../models/Recipe');
-
 const Review = require('../models/Review');
-
-
 const User = require('../models/user');
+const sendEMail = require('../helpers/sendEmail');
 
 
 exports.createReview = async function (req, res) {
@@ -20,6 +18,8 @@ exports.createReview = async function (req, res) {
         }
 
         try {
+            const content = {};
+
             const review = {
                 userID: req.user._id,
                 stars: req.body.stars,
@@ -45,6 +45,9 @@ exports.createReview = async function (req, res) {
                         message: 'Recipe không tồn tại.'
                     });
                 }
+
+                content.ownerID = checkRecipe.userID.toString();
+                content.recipe = checkRecipe.name;
             }
 
             if (!review.stars) {
@@ -85,6 +88,19 @@ exports.createReview = async function (req, res) {
                 _recipe.num_of_reviews =  _reviews.length;
 
                 await _recipe.save();
+
+                const _owner = await User.findOne({ 
+                    _id:  content.ownerID,
+                    isDeleted: false 
+                });
+                 // send email
+                let link = "http://" + req.headers.host;
+                let html = `<p>Chào ${_owner.username}</p>
+                            <p>Tài khoản ${req.user.username} đã bình luận về bài viết ${content.recipe} của bạn.</p> 
+                            <p>Bài viết ${content.recipe} của bạn có ${_recipe.num_of_reviews} lượt bình luận và ${_recipe.rate} điểm đánh giá.</p>
+                            <p>Xem chi tiết bài viết: <a href="${link}">xem tại đây.</a></p>`;
+
+                await new sendEMail(_owner, html).notificationReview();
 
                 return res.json({
                     success: true,
@@ -177,13 +193,7 @@ exports.removeReview = async function (req, res) {
                     console.log(req.user._id.toString());
                     console.log(checkReviews.userID.toString());
 
-                    if (req.user.userRole !== 'ADMIN' || req.user._id.toString() !== checkReviews.userID.toString()) {
-                        
-                        return res.status(401).json({
-                            success: false, 
-                            message: "Bạn không có quyền xóa bản ghi này."
-                        });
-                    } else {
+                    if (req.user.userRole === 'ADMIN' || req.user._id.toString() === checkReviews.userID.toString()) {
                         const _review = await Review.findOneAndUpdate({
                             _id: reviewID,
                             isDeleted: false 
@@ -230,6 +240,12 @@ exports.removeReview = async function (req, res) {
                                 Recipe: _recipe
                             }); 
                         }
+                        
+                    } else {
+                        return res.status(401).json({
+                            success: false, 
+                            message: "Bạn không có quyền xóa bản ghi này."
+                        });
                     }
                 }
             }

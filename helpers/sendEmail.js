@@ -70,4 +70,10 @@ module.exports = class Email {
       'Favorite Posts'
     );
   }
+
+  async notificationReview() {
+    await this.send(
+      'Review Posts'
+    );
+  }
 };
