@@ -15,6 +15,7 @@ const User = require('../models/user');
 
 
 exports.createRecipe = async function (req, res) {
+    // Kiểm tra body truyền lên
     if (!req.body) {
         return res.status(500).json({
             success: false, 
@@ -22,7 +23,7 @@ exports.createRecipe = async function (req, res) {
         });
     }
 
-    //Make sure the passed id is that of the logged in user
+    //Đảm bảo rằng dữ liệu nhận được là của người dùng đã đăng nhập
     if (!req.isAuthenticated()) {
         return res.status(401).json({
             success: false, 
@@ -31,6 +32,7 @@ exports.createRecipe = async function (req, res) {
     }
 
     try {
+        // Nhận dữ liệu cho collection Recipe
         const recipe = {
             userID: req.user._id,
             name: req.body.recipe.name,
@@ -44,11 +46,12 @@ exports.createRecipe = async function (req, res) {
 
         recipe.nameURL = toSlug(req.body.recipe.name);
 
-
+        // Kiểm tra quyền tạo bản ghi
         if (req.user.userRole === 'ADMIN') {
             recipe.isConfirmed = true
         }
 
+        // Kiểm tra body truyền lên
         if (!recipe.name || !recipe.des || !recipe.category || !recipe.img_url || !recipe.level || !recipe.rate || !recipe.num_of_reviews) {
             return res.status(500).json({
                 success: false,
@@ -57,11 +60,13 @@ exports.createRecipe = async function (req, res) {
             });
         }
 
+        // Nhận dữ liệu cho các collection Ingredient, Step, Pictures, Tag
         const _ingredients = req.body.ingredients;
         const _steps = req.body.steps;
         const _pictures = req.body.pictures;
         const _tags = req.body.tags;
 
+        // Kiểm tra body truyền lên
         let flag = 0;
         await Promise.all(_ingredients.map(async ingredient => {
             if (!ingredient.content) {
@@ -154,7 +159,10 @@ exports.createRecipe = async function (req, res) {
             // }
         }));
 
+        // Tiến hành tạo bản ghi khi dữ liệu truyền lên được đảm bảo
         if (flag !== 1) {
+
+            // Tạo bản ghi Recipe
             const newRecipe = await Recipe.create(recipe);
 
             if (!newRecipe || newRecipe == '' || newRecipe == null) {
@@ -164,6 +172,8 @@ exports.createRecipe = async function (req, res) {
                     message: 'Tạo Recipe không thành công.'
                 });
             } else {
+
+                // Nhận dữ liệu cho collection PrepTime
                 const prep_time = {
                     recipeID: newRecipe.id,
                     prep: req.body.prep_time.prep,
@@ -174,8 +184,10 @@ exports.createRecipe = async function (req, res) {
                     nutrition_facts: req.body.prep_time.nutrition_facts,
                 }
     
+                // Tạo bản ghi PrepTime
                 const newPrepTime = await PrepTime.create(prep_time);
     
+                 // Tạo bản ghi Ingredient
                 await Promise.all(_ingredients.map(async ingredient => {
                     await Ingredient.create({
                         recipeID: newRecipe.id,
@@ -183,6 +195,7 @@ exports.createRecipe = async function (req, res) {
                     });
                 }))
     
+                // Tạo bản ghi Step
                 await Promise.all(_steps.map(async step => {
                     await Step.create({
                         recipeID: newRecipe.id,
@@ -190,6 +203,7 @@ exports.createRecipe = async function (req, res) {
                     });
                 }))
     
+                // Tạo bản ghi Picture
                 await Promise.all(_pictures.map(async picture => {
                     await Picture.create({
                         recipeID: newRecipe.id,
@@ -197,6 +211,8 @@ exports.createRecipe = async function (req, res) {
                     });
                 }))
     
+
+                // Tạo bản ghi Tag
                 await Promise.all(_tags.map(async tag => {
                     await Tag.create({
                         recipeID: newRecipe.id,
@@ -205,6 +221,8 @@ exports.createRecipe = async function (req, res) {
                     })
                 }))
     
+
+                // Truy xuất bản ghi vừa tạo
                 const listIngredients = await Ingredient.find({
                     recipeID: newRecipe.id,
                     isDeleted: false
@@ -248,9 +266,6 @@ exports.createRecipe = async function (req, res) {
                 })
             }
         }
-
-       
-
     } catch (error) {
         return res.status(500).json({
             success: false, 
@@ -1010,4 +1025,96 @@ const toSlug = str => {
     str = str.replace(/-+$/g, "");
     // return
     return str;
+};
+
+
+///// 
+
+exports.getRecipe = async function (req, res) {
+    try {
+        const recipeID = req.query.recipeID;
+
+        if (!recipeID) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-020",
+                message: 'recipeID không xác định.'
+            });
+        } 
+
+        const _recipe = await Recipe.findOne({
+            _id: recipeID,
+            isDeleted: false 
+        });
+        
+        if (!_recipe || _recipe == null || _recipe == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-021",
+                message: 'Không tìm thấy bản ghi.'
+            });
+        } else {
+            const listIngredients = await Ingredient.find({
+                recipeID: recipeID,
+                isDeleted: false
+            }, 'content')
+    
+            const listSteps = await Step.find({
+                recipeID: recipeID,
+                isDeleted: false
+            }, 'content')
+    
+            const listPictures = await Picture.find({
+                recipeID: recipeID,
+                isDeleted: false
+            }, 'img_url')
+    
+            const listTags = await Tag.find({
+                recipeID: recipeID,
+                isDeleted: false
+            }, 'originID main_ingredientID')
+            .populate({
+                path: 'originID',
+                select: 'name img_url des',
+                model: Origin
+                })
+            .populate({
+                path: 'main_ingredientID',
+                select: 'category name img_url des',
+                model: MainIngredient
+            });
+            
+            const prepTime = await PrepTime.find({
+                recipeID: recipeID,
+                isDeleted: false
+            });
+
+            const _reviews = await Review.find({
+                recipeID: recipeID,
+                isDeleted: false
+            })
+            .sort({createdAt: -1})
+    
+            return res.json({
+                success: true,
+                code: "SUCCESS-010",
+                message: "Lấy bản ghi thành công",
+                Recipe: _recipe,
+                Ingredients: listIngredients,
+                Steps: listSteps,
+                Pictures: listPictures,
+                Tags: listTags,
+                PrepTime: prepTime,
+                Reviews: _reviews
+            })
+        }
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-007",
+            message: error.message
+        })   
+    }
 };

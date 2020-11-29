@@ -23,6 +23,11 @@ const HistorySchema = new mongoose.Schema({
         required: true
     },
 
+    note: {
+        type: String,
+        required: false
+    },
+
     createdAt: {
         type: Date,
         required: true,

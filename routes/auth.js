@@ -36,8 +36,10 @@ router.post('/user/uploadimg', uploadImage.uploadFile, User.uploadimage);
 //DISPLAY IMAGE
 router.get('/user/image/:filename', uploadImage.displayImage);
 
-//DELETE
-router.post('/user/remove', User.remove);
+// Xóa tài khoản User
+router.post('/user/remove', User.remove); // ADMIN
+router.post('/user/removeUser', User.removeUser); //USER
+
 
 // RecipeController
 router.post('/recipe/createRecipe', Recipe.createRecipe);

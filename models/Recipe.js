@@ -61,6 +61,11 @@ const RecipeSchema = new mongoose.Schema({
         default: false
     },
 
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
+
     createdAt: {
         type: Date,
         required: true,

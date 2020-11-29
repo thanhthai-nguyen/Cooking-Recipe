@@ -190,7 +190,7 @@ exports.update = async function (req, res) {
 };
 
 // Xóa user
-// @route DELETE api/user/{id}
+// @route POST api/user/{id}
 // @desc Delete User
 // @access Public
 exports.remove = async function (req, res) {
@@ -236,9 +236,77 @@ exports.remove = async function (req, res) {
         } else {
             return res.status(200).json({
                 success: true, 
-                message: 'User has been deleted'
+                message: 'Tài khoản đã được xóa.'
             });
         }
+            
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            message: error.message
+        })   
+    }
+};
+
+
+// User xóa tài khoản
+// @route DELETE api/user/{id}
+// @desc Delete User
+// @access Public
+exports.removeUser = async function (req, res) {
+    try {
+        const id = req.params.id;
+        const userId = req.user._id;
+        const { password } = req.body;
+
+        //Make sure the passed id is that of the logged in user
+        //if (user_id.toString() !== id.toString()) return res.status(401).json({message: "Sorry, you don't have the permission to delete this data."});
+        if (!req.isAuthenticated()) {
+            return res.status(401).json({
+                success: false, 
+                message: "Sorry, you don't have the permission to delete this data."
+            });
+        }
+
+        const user = await User.findOne({
+            _id: userId,
+            isDeleted: false
+        });
+
+        console.log(user);
+
+        if (!user) {
+            return res.status(401).json({
+                success: false, 
+                message: 'Không tìm thấy tài khoản.'
+            });
+        }
+        //validate password
+        if (!user.comparePassword(password)) {
+            return res.status(401).json({
+                success: false, 
+                message: 'Password không hợp lệ.'
+            });
+        }  else {
+            const removeUser = await User.findByIdAndUpdate(userId, 
+                {
+                    $set: {
+                        isDeleted: true
+                    }
+                }, {new: true});
+    
+            if (!removeUser || removeUser == ''|| removeUser == null) {
+                return res.status(500).json({
+                    success: false, 
+                    message: "Lỗi... Không thể xóa người dùng."
+                })   
+            } else {
+                return res.status(200).json({
+                    success: true, 
+                    message: 'Tài khoản đã được xóa.'
+                });
+            }
+        }     
             
     } catch (error) {
         return res.status(500).json({
