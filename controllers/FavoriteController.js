@@ -25,7 +25,7 @@ exports.createFavorite = async function (req, res) {
     try {
         const content = {};
         const data = {
-            userID: req.user._id,
+            userID: req.user._id.toString(),
             recipeID: req.body.recipeID,
         }
 
@@ -109,11 +109,22 @@ exports.createFavorite = async function (req, res) {
 
             await new sendEMail(_owner, html).notificationFavorite();
 
+            const _favorites = await Favorite.find({
+                userID: data.userID,
+                isDeleted: false 
+            })
+            .sort({createdAt: -1})
+            .populate({
+                path: 'recipeID',
+                // select: 'category name img_url des',
+                model: Recipe
+            });
+
             return res.status(200).json({
                 success: true,
                 code: "SUCCESS-000",
                 message: 'Danh sách Favorites.',
-                Favorite: newFavorite,
+                Favorites: _favorites,
                 Recipe: _recipe
             });            
         }
