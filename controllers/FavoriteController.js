@@ -113,7 +113,7 @@ exports.createFavorite = async function (req, res) {
                 success: true,
                 code: "SUCCESS-000",
                 message: 'Danh sách Favorites.',
-                // Favorites: _favorites
+                Favorite: newFavorite,
                 Recipe: _recipe
             });            
         }
