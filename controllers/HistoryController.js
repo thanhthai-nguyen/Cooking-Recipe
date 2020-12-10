@@ -55,11 +55,23 @@ exports.createHistory = async function (req, res) {
                     });
                 } 
     
+                // const _histories = await History.find({
+                //     userID: data.userID,
+                //     isDeleted: false
+                // })
+                // .sort({createdAt: -1});
+
                 const _histories = await History.find({
                     userID: data.userID,
                     isDeleted: false
                 })
-                .sort({createdAt: -1});
+                .limit(20)
+                .sort({createdAt: -1})
+                .populate({
+                    path: 'recipeID',
+                    // select: 'category name img_url des',
+                    model: Recipe
+                });
     
                 return res.status(200).json({
                     success: true,
