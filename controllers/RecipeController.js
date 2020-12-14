@@ -664,7 +664,12 @@ exports.getAllRecipes = async function (req, res) {
             const _recipes = await Recipe.find({
                 isDeleted: false 
             })
-            .sort({createdAt: -1});
+            .sort({
+                num_of_reviews: -1
+            })
+            .sort({
+                rate: -1
+            });
 
             if (!_recipes || _recipes == null || _recipes == '') {
                 return res.status(500).json({
@@ -722,7 +727,12 @@ exports.getAllRecipesForOthers = async function (req, res) {
                 isDeleted: false,
                 isConfirmed: true
             })
-            .sort({createdAt: -1});
+            .sort({
+                num_of_reviews: -1
+            })
+            .sort({
+                rate: -1
+            });
 
             if (!_recipes || _recipes == null || _recipes == '') {
                 return res.status(500).json({

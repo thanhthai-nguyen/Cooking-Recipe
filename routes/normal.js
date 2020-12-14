@@ -99,7 +99,7 @@ router.post('/recipe/createRecipe', Recipe.createRecipeNoToken);
 // Lấy tất cả công thức món ăn - ADMIN
 router.get('/recipe/getAllRecipes', Recipe.getAllRecipes);
 // Cập nhật lại công thức món ăn
-router.post('/recipe/updateRecipe', Recipe.updateRecipe);
+router.put('/recipe/updateRecipe', Recipe.updateRecipe);
 // Lấy 1 công thức món ăn
 router.get('/recipe/getRecipe', Recipe.getRecipe);
 // Hủy 1 công thức món ăn
