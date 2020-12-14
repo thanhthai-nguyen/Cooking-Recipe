@@ -1010,6 +1010,12 @@ exports.searchRecipe = async (req, res) => {
         nameURL: { 
             $regex: _keySearch
         },
+    })
+    .sort({
+        num_of_reviews: -1
+    })
+    .sort({
+        rate: -1
     });
     
     res.send(recipes);
