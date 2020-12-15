@@ -1134,3 +1134,21 @@ exports.getRecipe = async function (req, res) {
         })   
     }
 };
+
+// Lấy recipe theo category
+exports.getRecipesByCategory = async (req, res) => {
+    const category = req.query.category;
+    const recipes = await Recipe.find({
+        category: { 
+            $regex: category
+        },
+    })
+    .sort({
+        num_of_reviews: -1
+    })
+    .sort({
+        rate: -1
+    });
+    
+    res.send(recipes);
+};

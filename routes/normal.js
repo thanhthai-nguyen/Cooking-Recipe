@@ -113,6 +113,8 @@ router.get('/recipe/getAllRecipesForOthers', Recipe.getAllRecipesForOthers);
 router.post('/recipe/getRecipeByTags', Recipe.getRecipeByTags);
 // Search công thức món ăn
 router.get('/recipe/searchRecipe', Recipe.searchRecipe);
+// Lấy theo category
+router.get('/recipe/getRecipesByCategory', Recipe.getRecipesByCategory);
 
 
 
