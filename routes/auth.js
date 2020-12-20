@@ -13,6 +13,7 @@ const Recipe = require('../controllers/RecipeController');
 const History = require('../controllers/HistoryController');
 const Favorite = require('../controllers/FavoriteController');
 const Review = require('../controllers/ReviewController');
+const Planner = require('../controllers/PlannerController');
 
 
 //INDEX
@@ -58,6 +59,11 @@ router.get('/history/removeAllHistories', History.removeAllHistories);
 // ReviewController
 router.post('/review/createReview', Review.createReview);
 router.get('/review/removeReview', Review.removeReview);
+
+// PlannerController
+router.post('/planner/createPlanner', Planner.createPlanner);
+router.get('/planner/removePlanner', Planner.removePlanner);
+router.post('/planner/updatePlanner', Planner.updatePlanner);
 
 
 module.exports = router;

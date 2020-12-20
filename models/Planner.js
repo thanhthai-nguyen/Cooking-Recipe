@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const HistorySchema = new mongoose.Schema({
+const PlannerSchema = new mongoose.Schema({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -50,4 +50,4 @@ const HistorySchema = new mongoose.Schema({
 }, {timestamps: true});
 
 mongoose.set("useFindAndModify", false);
-module.exports = mongoose.model('History', HistorySchema);
+module.exports = mongoose.model('Planner', PlannerSchema);

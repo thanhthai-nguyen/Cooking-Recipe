@@ -157,7 +157,6 @@ exports.removePlanner = async function (req, res) {
                 });
             } else {
                 console.log(req.user._id.toString());
-                console.log(checkPlanner.userID.toString());
 
                 if (req.user._id.toString() === checkPlanner.userID.toString()) {
                     const _planner = await Planner.findOneAndUpdate({
@@ -175,19 +174,19 @@ exports.removePlanner = async function (req, res) {
                             message: 'Hủy bản ghi không thành công!'
                         });
                     } else {
-                        const checkPlanner = await Planner.find({
-                            userID: userID,
-                            isDeleted: false
-                        })
-                        .sort({createdAt: -1})
-                        .populate('recipeID');
+                        // const checkPlanner = await Planner.find({
+                        //     userID: req.user._id.toString(),
+                        //     isDeleted: false
+                        // })
+                        // .sort({createdAt: -1})
+                        // .populate('recipeID');
         
                         
                         return res.status(200).json({
                             success: true,
                             code: "SUCCESS-004",
                             message: 'Hủy bản ghi thành công.',
-                            Planners: checkPlanner
+                            // Planners: checkPlanner
                         }); 
                     }
                     
@@ -204,5 +203,62 @@ exports.removePlanner = async function (req, res) {
             success: false,
             message: error.message
         })
+    }
+};
+
+exports.updatePlanner = async function (req, res) {
+    if (!req.body) {
+        return res.status(500).json({
+            success: false, 
+            message: 'Empty body'
+        });
+    }
+    try {
+        const plannerID = req.body.plannerID;
+
+        const update = req.body.planner;
+
+
+        if (!plannerID) {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-018",
+                message: 'plannerID không xác định.'
+            });
+        } 
+
+        const _planner = await Planner.findOneAndUpdate({
+            _id: plannerID,
+            isDeleted: false 
+        }, update, {new: true});
+        
+
+        if (!_planner || _planner == null || _planner == '') {
+            return res.status(500).json({
+                success: false,
+                code: "ERROR-019",
+                message: 'Cập nhật bản ghi không thành công! Kiểm tra lại prep_timeID.'
+            });
+        } else {
+            const _planners = await Planner.find({
+                _id: plannerID,
+                isDeleted: false 
+            })
+            // .sort({createdAt: -1})
+            .populate('recipeID');
+
+
+            return res.json({
+                success: true,
+                Planners: _planners
+            });
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false, 
+            code: "CATCH-006",
+            message: error.message
+        })   
     }
 };

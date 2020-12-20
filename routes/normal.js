@@ -15,6 +15,7 @@ const PrepTime = require('../controllers/PrepTimeController');
 const Review = require('../controllers/ReviewController');
 const History = require('../controllers/HistoryController');
 const Favorite = require('../controllers/FavoriteController');
+const Planner = require('../controllers/PlannerController');
 
 const router = express.Router();
 
@@ -150,5 +151,8 @@ router.get('/favorite/getAllFavoritesOfUser', Favorite.getAllFavoritesOfUser);
 // HistoryController
 // router.get('/history/getAllHistories', History.getAllHistories);
 router.get('/history/getAllHistoriesOfUser', History.getAllHistoriesOfUser);
+
+// PlannerController
+router.get('/planner/getAllPlannersOfUser', Planner.getAllPlannersOfUser);
 
 module.exports = router;
