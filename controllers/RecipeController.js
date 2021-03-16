@@ -246,7 +246,7 @@ exports.createRecipe = async function (req, res) {
                     path: 'originID',
                     select: 'name img_url des',
                     model: Origin
-                    })
+                })
                 .populate({
                     path: 'main_ingredientID',
                     select: 'category name img_url des',
@@ -1151,4 +1151,47 @@ exports.getRecipesByCategory = async (req, res) => {
     });
     
     res.send(recipes);
+};
+
+exports.test = async (req, res) => {
+   try {
+       const _arr = req.body._arr;
+
+       const arr = [2, 1, 3, 9, 2, 4, -10, -9, 1, 3];
+
+       let max = -9999999999;
+
+    for (let k = 0; k < arr.length; k++) {
+        let flag = k;
+        let step = 1;
+        let result = 0;
+        let z = arr.length - k;
+        while (step <= z) {
+            let i = 0;
+            let c = 0;
+            for (i = flag; c < step; c++) { 
+                result = result + arr[i];
+                i++;                  
+            }
+            z = z - step;
+            flag = i;
+            step++;
+        }
+        // console.log(result);
+
+        if (result > max) {
+            max = result;
+        }
+      
+    }
+   
+   console.log(max);
+
+   } catch (error) {
+    return res.status(500).json({
+        success: false, 
+        code: "CATCH-007",
+        message: error.message
+    })  
+   }
 };

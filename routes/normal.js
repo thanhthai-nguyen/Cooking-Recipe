@@ -155,4 +155,8 @@ router.get('/history/getAllHistoriesOfUser', History.getAllHistoriesOfUser);
 // PlannerController
 router.get('/planner/getAllPlannersOfUser', Planner.getAllPlannersOfUser);
 
+/////
+router.get('/test', Recipe.test);
+
+
 module.exports = router;
